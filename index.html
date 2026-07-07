@@ -1,0 +1,52 @@
+HTML
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Combate MERP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>⚔️ Simulador de Combate - MERP ⚔️</h1>
+    <p>El juego de rol de la Tierra Media</p>
+
+    <div class="combat-container">
+        <!-- CUADRO ATACANTE -->
+        <div class="character-box attacker">
+            <h2>Personaje Atacante</h2>
+            <div class="input-group">
+                <label for="bo">Bono de Ofensiva (BO):</label>
+                <input type="number" id="bo" value="50">
+            </div>
+        </div>
+
+        <!-- CUADRO DEFENSOR -->
+        <div class="character-box defender">
+            <h2>Personaje Defensor</h2>
+            <div class="input-group">
+                <label for="bd">Bono de Defensa (BD):</label>
+                <input type="number" id="bd" value="15">
+            </div>
+            <div class="input-group">
+                <label for="ta">Tipo de Armadura (TA):</label>
+                <input type="number" id="ta" min="1" max="20" value="1">
+                <small>(Del 1 al 20)</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÓN Y ANIMACIÓN -->
+    <button id="roll-btn">🎲 ¡Lanzar Dados! 🎲</button>
+    
+    <div id="dice-container" class="dice">100</div>
+
+    <!-- RESULTADO -->
+    <div id="result-box" class="result-box" style="display: none;"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

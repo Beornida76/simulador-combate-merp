@@ -109,31 +109,34 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         let bdFinal = bdBase + modBD;
         let resultadoTabla = totalDados + boFinal - bdFinal;
 
-        // Variables de impacto de salud finales
+        // Variables de control de estado dinámicas
         let dañoAplicadoDefensor = 0;
         let dañoAplicadoAtacante = 0;
         let estadoFinalAtacante = "Saludable";
         let estadoFinalDefensor = "Saludable";
         let respuestaCombate = "";
+        
+        let nuevoAturdidoDef = false;
+        let nuevoAturdidoAtq = false;
 
         let esPifia = logTiradas[0] <= 4;
 
         if (esPifia) {
             let textoPifia = "";
             if (tipoCategoriaTabla === 'filo') {
-                dañoAplicadoAtacante = 5; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO (1 asalto)";
+                dañoAplicadoAtacante = 5; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO"; nuevoAturdidoAtq = true;
                 textoPifia = "💥 <strong>PIFIA DE FILO:</strong> Te cortas a ti mismo sufriendo <strong>5 PV directos</strong>, quedas <strong>Aturdido 1 asalto</strong> y el filo queda mellado (-5 al BO).";
             } else if (tipoCategoriaTabla === 'contundente') {
-                estadoFinalAtacante = "⚠️ MUÑECA DISLOCADA (-15 BO x3 asaltos)";
+                estadoFinalAtacante = "⚠️ MUÑECA DISLOCADA (-15 BO)";
                 textoPifia = "💥 <strong>PIFIA CONTUNDENTE:</strong> La inercia te deforma la muñeca. Arrastras un **-15 al BO durante los siguientes 3 asaltos**.";
             } else if (tipoCategoriaTabla === 'dos_manos') {
-                estadoFinalAtacante = "⚠️ DERRIBADO Y ATURDIDO (2 asaltos)";
-                textoPifia = "💥 <strong>PIFIA A DOS MANOS:</strong> ¡El peso te vence! Caes al suelo en **posición tendida (-30 BD)** y quedas **Aturdido durante 2 asaltos**.";
+                estadoFinalAtacante = "⚠️ DERRIBADO Y ATURDIDO"; nuevoAturdidoAtq = true;
+                textoPifia = "💥 <strong>PIFIA A DOS MANOS:</strong> ¡El peso te vence! Fallas el golpe y te vas al suelo. Quedas en **posición tendida (-30 BD)** y **Aturdido durante 2 asaltos**.";
             } else if (tipoCategoriaTabla === 'proyectil') {
-                dañoAplicadoAtacante = 3; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO (2 asaltos)";
+                dañoAplicadoAtacante = 3; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO"; nuevoAturdidoAtq = true;
                 textoPifia = "💥 <strong>PIFIA DE PROYECTIL:</strong> ¡La cuerda se rompe! El latigazo te causa <strong>3 PV</strong> y quedas **Aturdido 2 asaltos**.";
             }
-            estadoFinalDefensor = "Sin Novedad (No fue atacado)";
+            estadoFinalDefensor = "Ileso";
             respuestaCombate = `
                 <div style="color: #ff4d4d; font-size: 20px; font-weight: bold; margin-bottom: 10px;">❌ ¡FALLO CRÍTICO / PIFIA! ❌</div>
                 <div style="background-color: #2b1111; padding: 14px; border-radius: 6px; border-left: 5px solid #ff4d4d; text-align: left; font-size: 15px; color:#ffb3b3;">
@@ -185,55 +188,56 @@ document.getElementById('roll-btn').addEventListener('click', function() {
                 else { pvDañoBase = 36; rangoCritico = (ta <= 4) ? "E" : "C"; }
             }
 
-            // Aplicar absorción antes de sumar críticos
+            // Mitigación por robustez
             if (mitigacionDañoracial > 0 && pvDañoBase > 0) {
                 pvDañoBase = Math.max(1, pvDañoBase - mitigacionDañoracial);
                 descCritico += `<br><small style="color:#4da6ff;">🛡️ Robustez: Absorbe ${mitigacionDañoracial} PV del golpe.</small>`;
             }
 
-            // Desglose matemático y médico del crítico obtenido
+            // Desglose de críticos y activación de flags de estado
             if (rangoCritico !== "Ninguno") {
                 if (tipoCategoriaTabla === 'filo' || tipoCategoriaTabla === 'dos_manos') {
                     const mapas = {
-                        "A": { pv: 3, txt: "⚔️ <strong>Rango A:</strong> Tajo superficial. +3 PV y -5 a la acción.", est: "Aturdido (1 asalto)" },
-                        "B": { pv: 5, txt: "🩸 <strong>Rango B:</strong> Herida sangrante. +5 PV y sangra 1 PV/asalto.", est: "Sangrando (1 PV/asalto)" },
-                        "C": { pv: 8, txt: "🦴 <strong>Rango C:</strong> Rompe costilla. +8 PV y queda **Aturdido 1 asalto**.", est: "Aturdido (1 asalto)" },
-                        "D": { pv: 12, txt: "💀 <strong>Rango D:</strong> Golpe severo. +12 PV, **Aturdido 2 asaltos** y sangra 2 PV/as.", est: "Aturdido (2 asaltos) y Sangrando" },
-                        "E": { pv: 20, txt: "🦅 <strong>Rango E:</strong> ¡Corte arterial! +20 PV, derribado y **Aturdido 3 asaltos**.", est: "Mutilado y Aturdido (3 asaltos)" }
+                        "A": { pv: 3, txt: "⚔️ <strong>Rango A:</strong> Tajo superficial. +3 PV.", aturdido: false },
+                        "B": { pv: 5, txt: "🩸 <strong>Rango B:</strong> Herida sangrante. +5 PV y sangra.", aturdido: false },
+                        "C": { pv: 8, txt: "🦴 <strong>Rango C:</strong> Rompe costilla. +8 PV y **Aturdido 1 asalto**.", aturdido: true },
+                        "D": { pv: 12, txt: "💀 <strong>Rango D:</strong> Golpe severo. +12 PV y **Aturdido 2 asaltos**.", aturdido: true },
+                        "E": { pv: 20, txt: "🦅 <strong>Rango E:</strong> ¡Corte arterial! +20 PV y **Aturdido 3 asaltos**.", aturdido: true }
                     };
-                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico; efectosEspecialesCritico.push(mapas[rangoCritico].est);
+                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico;
+                    if (mapas[rangoCritico].aturdido) { nuevoAturdidoDef = true; efectosEspecialesCritico.push("💥 ATURDIDO"); }
                 } else if (tipoCategoriaTabla === 'contundente') {
                     const mapas = {
-                        "A": { pv: 2, txt: "💥 <strong>Rango A:</strong> Contusión. +2 PV extra y -5 de penalización.", est: "Magullado" },
-                        "B": { pv: 5, txt: "🦴 <strong>Rango B:</strong> Impacto sordo. +5 PV y queda **Aturdido 1 asalto**.", est: "Aturdido (1 asalto)" },
-                        "C": { pv: 8, txt: "🧠 <strong>Rango C:</strong> Traumatismo craneal. +8 PV y **Aturdido 2 asaltos**.", est: "Aturdido (2 asaltos)" },
-                        "D": { pv: 12, txt: "🦵 <strong>Rango D:</strong> Rompe hueso. +12 PV, cae de rodillas y **Aturdido 3 asaltos**.", est: "Cojera y Aturdido (3 asaltos)" },
-                        "E": { pv: 20, txt: "💀 <strong>Rango E:</strong> Fractura aplastante. +20 PV y queda **Incapacitado 4 asaltos**.", est: "🚨 INCAPACITADO (4 asaltos)" }
+                        "A": { pv: 2, txt: "💥 <strong>Rango A:</strong> Contusión. +2 PV.", aturdido: false },
+                        "B": { pv: 5, txt: "🦴 <strong>Rango B:</strong> Impacto sordo. +5 PV y **Aturdido 1 asalto**.", aturdido: true },
+                        "C": { pv: 8, txt: "🧠 <strong>Rango C:</strong> Traumatismo craneal. +8 PV y **Aturdido 2 asaltos**.", aturdido: true },
+                        "D": { pv: 12, txt: "🦵 <strong>Rango D:</strong> Rompe hueso. +12 PV y **Aturdido 3 asaltos**.", aturdido: true },
+                        "E": { pv: 20, txt: "💀 <strong>Rango E:</strong> Fractura aplastante. +20 PV e **Incapacitado 4 asaltos**.", aturdido: true }
                     };
-                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico; efectosEspecialesCritico.push(mapas[rangoCritico].est);
+                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico;
+                    if (mapas[rangoCritico].aturdido) { nuevoAturdidoDef = true; efectosEspecialesCritico.push("💥 ATURDIDO"); }
                 } else if (tipoCategoriaTabla === 'proyectil') {
                     const mapas = {
-                        "A": { pv: 3, txt: "🎯 <strong>Rango A:</strong> Flecha alojada. +3 PV extra.", est: "Herida de Proyectil" },
-                        "B": { pv: 5, txt: "🩸 <strong>Rango B:</strong> Traspasa tejido blando. +5 PV y hemorragia de 1 PV/as.", est: "Sangrando (1 PV/asalto)" },
-                        "C": { pv: 8, txt: "🏹 <strong>Rango C:</strong> Perforación dolorosa. +8 PV, sangra 2 PV/as y **Aturdido 1 asalto**.", est: "Aturdido (1 asalto) y Sangrando" },
-                        "D": { pv: 12, txt: "👁️ <strong>Rango D:</strong> Impacto orgánico grave. +12 PV y **Aturdido 2 asaltos**.", est: "Aturdido (2 asaltos)" },
-                        "E": { pv: 22, txt: "💀 <strong>Rango E:</strong> Atraviesa zona vital. +22 PV y el rival cae **Inconsciente**.", est: "💀 INCONSCIENTE" }
+                        "A": { pv: 3, txt: "🎯 <strong>Rango A:</strong> Flecha alojada. +3 PV.", aturdido: false },
+                        "B": { pv: 5, txt: "🩸 <strong>Rango B:</strong> Traspasa tejido. +5 PV.", aturdido: false },
+                        "C": { pv: 8, txt: "🏹 <strong>Rango C:</strong> Perforación dolorosa. +8 PV y **Aturdido 1 asalto**.", aturdido: true },
+                        "D": { pv: 12, txt: "👁️ <strong>Rango D:</strong> Impacto orgánico. +12 PV y **Aturdido 2 asaltos**.", aturdido: true },
+                        "E": { pv: 22, txt: "💀 <strong>Rango E:</strong> Atraviesa zona vital. +22 PV e **Inconsciente**.", aturdido: true }
                     };
-                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico; efectosEspecialesCritico.push(mapas[rangoCritico].est);
+                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico;
+                    if (mapas[rangoCritico].aturdido) { nuevoAturdidoDef = true; efectosEspecialesCritico.push("💥 ATURDIDO"); }
                 }
             } else {
                 descCritico = "⚔️ Golpe directo sin efectos críticos graves.";
-                if (pvDañoBase > 0) efectosEspecialesCritico.push("Herido Leve");
             }
 
             dañoAplicadoDefensor = pvDañoBase + pvCriticoExtra;
-            estadoFinalAtacante = "Saludable (Listo para el siguiente turno)";
+            estadoFinalAtacante = "Listo";
             
-            // Construir diagnóstico clínico del Defensor
             if (dañoAplicadoDefensor > 0) {
-                estadoFinalDefensor = efectosEspecialesCritico.join(' y ');
+                estadoFinalDefensor = efectosEspecialesCritico.length > 0 ? efectosEspecialesCritico.join(' | ') : "Herido Leve";
             } else {
-                estadoFinalDefensor = "Ileso (El golpe erró o rebotó en la armadura)";
+                estadoFinalDefensor = "Ileso";
             }
 
             respuestaCombate = `
@@ -246,21 +250,28 @@ document.getElementById('roll-btn').addEventListener('click', function() {
             `;
         }
 
-        // --- CÁLCULO DE RECUENTO DE SALUD POST-COMBATE ---
-        let pvDefRestantes = pvDefInicial - dañoAplicadoDefensor;
-        let pvAtqRestantes = pvAtqInicial - dañoAplicadoAtacante;
+        // --- 📊 OPERACIÓN MATEMÁTICA EN LAS CASILLAS ---
+        let pvDefRestantes = Math.max(0, pvDefInicial - dañoAplicadoDefensor);
+        let pvAtqRestantes = Math.max(0, pvAtqInicial - dañoAplicadoAtacante);
 
-        // Comprobación de inconsciencia oficial (PV <= 0)
-        if (pvDefRestantes <= 0) {
-            pvDefRestantes = 0;
-            estadoFinalDefensor = "💀 INCONSCIENTE / MORIBUNDO (Fuera de combate)";
+        if (pvDefRestantes <= 0) estadoFinalDefensor = "💀 INCONSCIENTE / MUERTO";
+        if (pvAtqRestantes <= 0) estadoFinalAtacante = "💀 INCONSCIENTE (Pifia)";
+
+        // 🌟 REGLA DE ORO: ACTUALIZAR LOS INPUTS EN LA PANTALLA REAL 🌟
+        document.getElementById('pv-atq').value = pvAtqRestantes;
+        document.getElementById('pv-def').value = pvDefRestantes;
+
+        // Automatización de estados de MERP para el próximo turno
+        if (nuevoAturdidoDef) {
+            document.getElementById('mod-def-aturdido').checked = true;
         }
-        if (pvAtqRestantes <= 0) {
-            pvAtqRestantes = 0;
-            estadoFinalAtacante = "💀 INCONSCIENTE POR AUTOMEDILACIÓN / PIFIA";
+        if (nuevoAturdidoAtq) {
+            document.getElementById('mod-atq-aturdido').checked = true;
         }
-        
-        // Cosmética
+        // La sorpresa se consume tras el primer golpe
+        document.getElementById('mod-def-sorprendido').checked = false;
+
+        // Cosmética final para la bitácora
         const nombresArmas = {
             espada_ancha: "Espada Ancha", espada_corta: "Espada Corta", daga: "Daga", cimitarra: "Cimitarra",
             maza: "Maza", martillo: "Martillo de Guerra", gran_hacha: "Gran Hacha", mandoble: "Mandoble",
@@ -272,11 +283,9 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         };
         const desgloseDadosImpresion = logTiradas.map(n => n < 0 ? `(${n})` : n).join(' + ');
 
-        // RENDER DE PANTALLA CON TABLA MÉDICA
         resultBox.innerHTML = `
             <h3 style="color:#ffcc00; border-bottom: 1px solid #8b7355; padding-bottom: 8px; margin-top: 0;">⚔️ Crónica de Combate Táctico ⚔️</h3>
             
-            <!-- TABLA DE ESTADO MÉDICO POST-COMBATE -->
             <table style="width:100%; border-collapse: collapse; margin-bottom: 15px; font-size:14px; background-color:#1a1a1a; border-radius:6px; overflow:hidden;">
                 <thead>
                     <tr style="background-color:#2a2a2a; color:#ffcc00; text-align:left;">
@@ -289,14 +298,14 @@ document.getElementById('roll-btn').addEventListener('click', function() {
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding:8px; border: 1px solid #333;"><strong>Atacante (${nombresRazas[razaAtq]})</strong></td>
+                        <td style="padding:8px; border: 1px solid #333;"><strong>Atacante</strong></td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ccc;">${pvAtqInicial}</td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ff4d4d;">${dañoAplicadoAtacante > 0 ? '-' + dañoAplicadoAtacante : '0'}</td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#00ff66; font-weight:bold;">${pvAtqRestantes}</td>
                         <td style="padding:8px; border: 1px solid #333; font-size:12px; color:#ddd;">${estadoFinalAtacante}</td>
                     </tr>
                     <tr>
-                        <td style="padding:8px; border: 1px solid #333;"><strong>Defensor (${nombresRazas[razaDef]})</strong></td>
+                        <td style="padding:8px; border: 1px solid #333;"><strong>Defensor</strong></td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ccc;">${pvDefInicial}</td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ff4d4d;">${dañoAplicadoDefensor > 0 ? '-' + dañoAplicadoDefensor : '0'}</td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#00ff66; font-weight:bold;">${pvDefRestantes}</td>
@@ -305,18 +314,11 @@ document.getElementById('roll-btn').addEventListener('click', function() {
                 </tbody>
             </table>
 
-            <p style="font-size: 15px; margin: 4px 0; text-align:left;"><strong>Asalto ejecutado:</strong> ${nombresRazas[razaAtq]} usando <strong>${nombresArmas[armaSeleccionada]}</strong> contra ${nombresRazas[razaDef]} (TA-${ta}).</p>
-
-            <div style="background-color:#111; padding: 8px; font-size:13px; text-align:left; border-radius:4px; margin: 10px 0; border: 1px solid #333; line-height:1.4;">
-                <span style="color:#ff4d4d;"><strong>Modificadores de Ataque (BO):</strong></span> ${desgloseTextoBO.length > 0 ? desgloseTextoBO.join(' | ') : 'Ninguno (Base)'}<br>
-                <span style="color:#3399ff;"><strong>Modificadores de Defensa (BD):</strong></span> ${desgloseTextoBD.length > 0 ? desgloseTextoBD.join(' | ') : 'Ninguno (Base)'}
-            </div>
-
-            <p style="font-size: 13px; color: #aaa; margin: 4px 0; text-align:left;">
-                <strong>Secuencia de Dados de la Mesa:</strong> [${desgloseDadosImpresion}]${tipoDeTiradaTexto}
+            <p style="font-size: 14px; color: #aaa; margin: 4px 0; text-align:left;">
+                <strong>Secuencia de Dados:</strong> [${desgloseDadosImpresion}]${tipoDeTiradaTexto}
             </p>
-            <p style="font-size: 13px; color: #aaa; margin: 4px 0; text-align:left;">
-                <strong>Fórmula final:</strong> ${totalDados} (Dados) + ${boFinal} (BO Final) - ${bdFinal} (BD Final) = <strong>${resultadoTabla}</strong> en tabla.
+            <p style="font-size: 14px; color: #aaa; margin: 4px 0; text-align:left;">
+                <strong>Cálculo:</strong> ${totalDados} (Dados) + ${boFinal} (BO) - ${bdFinal} (BD) = <strong>${resultadoTabla}</strong> en Tabla.
             </p>
             
             <hr style="border-color: #444; margin: 15px 0;">

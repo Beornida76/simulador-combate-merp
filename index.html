@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Combate MERP Avanzado</title>
+    <title>Simulador de Combate MERP Total</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>⚔️ Simulador de Combate Avanzado - MERP ⚔️</h1>
-    <p>Fiel a las reglas clásicas de la Tierra Media</p>
+    <h1>⚔️ Simulador de Combate Total - MERP ⚔️</h1>
+    <p>Motor de simulación táctica fiel al manual de papel de 1989</p>
 
     <div class="combat-container">
         <!-- CUADRO ATACANTE -->
@@ -28,7 +28,7 @@
             </div>
 
             <div class="input-group">
-                <label for="arma">Arma:</label>
+                <label for="arma">Arma Activa:</label>
                 <select id="arma">
                     <optgroup label="🗡️ Armas de Filo">
                         <option value="espada_ancha">Espada Ancha</option>
@@ -57,10 +57,9 @@
                 <input type="number" id="bo" value="50">
             </div>
 
-            <!-- MODIFICADORES DEL ATACANTE -->
             <div class="modifiers-section">
-                <h3>Modificadores de Combate</h3>
-                <label class="checkbox-label"><input type="checkbox" id="mod-flanco"> ↩️ Ataque por el Flanco (+15 BO)</label>
+                <h3>Modificadores de Asalto</h3>
+                <label class="checkbox-label"><input type="checkbox" id="mod-flanco"> ↩️ Ventaja de Flanco (+15 BO)</label>
                 <label class="checkbox-label"><input type="checkbox" id="mod-espalda"> 👤 Ataque por la Espalda (+35 BO)</label>
                 <label class="checkbox-label"><input type="checkbox" id="mod-atq-aturdido"> 😵 Atacante Aturdido (-20 BO)</label>
                 <label class="checkbox-label"><input type="checkbox" id="mod-atq-herido"> 🩸 Atacante Herido Grave (-10 BO)</label>
@@ -83,16 +82,16 @@
             </div>
 
             <div class="input-group">
-                <label for="ta">Tipo de Armadura Real:</label>
+                <label for="ta">Armadura Equipada:</label>
                 <select id="ta">
                     <option value="1">👕 TA 1: Ropa normal (Sin armadura)</option>
-                    <option value="2">👕 TA 2: Ropa acolchada / Túnica pesada</option>
-                    <option value="5">🧥 TA 5: Cuero flexible (Chaqueta ligera)</option>
-                    <option value="9">🛡️ TA 9: Cuero endurecido (Coraza peto)</option>
-                    <option value="13">⛓️ TA 13: Cota de malla ligera / Camisote</option>
+                    <option value="2">👕 TA 2: Ropa acolchada pesada</option>
+                    <option value="5">🧥 TA 5: Cuero flexible ligero</option>
+                    <option value="9">🛡️ TA 9: Cuero endurecido (Coraza)</option>
+                    <option value="13">⛓️ TA 13: Cota de malla ligera</option>
                     <option value="15">⛓️ TA 15: Cota de malla completa</option>
-                    <option value="17">🦾 TA 17: Armadura de placas parcial</option>
-                    <option value="20">🦾 TA 20: Armadura de placas completa</option>
+                    <option value="17">🦾 TA 17: Placas parciales</option>
+                    <option value="20">🦾 TA 20: Placas completas</option>
                 </select>
             </div>
 
@@ -101,16 +100,28 @@
                 <input type="number" id="bd" value="15">
             </div>
 
-            <!-- MODIFICADORES DEL DEFENSOR -->
+            <!-- NUEVAS MECÁNICAS DE DEFENSA ACTIVA -->
+            <div class="input-group">
+                <label class="checkbox-label" style="font-weight: bold; color: #ffcc00; margin-top: 10px;">
+                    <input type="checkbox" id="def-escudo"> 🛡️ Equipar Escudo (+20 BD)
+                </label>
+            </div>
+
+            <div class="input-group">
+                <label for="def-parar">⚔️ Puntos para Parar (Usa su BO):</label>
+                <input type="number" id="def-parar" value="0" min="0">
+                <small style="color: #aaa; display:block; margin-top:4px;">Resta BO de su próximo turno para ganar BD ahora.</small>
+            </div>
+
             <div class="modifiers-section">
-                <h3>Estado del Defensor</h3>
-                <label class="checkbox-label"><input type="checkbox" id="mod-def-aturdido"> 🥴 Defensor Aturdido (Pierde Escudo/Agilidad)</label>
+                <h3>Estado Defensivo</h3>
+                <label class="checkbox-label"><input type="checkbox" id="mod-def-aturdido"> 🥴 Defensor Aturdido (Pierde Agilidad/Escudo)</label>
                 <label class="checkbox-label"><input type="checkbox" id="mod-def-sorprendido"> 😮 Defensor Sorprendido (-20 BD)</label>
             </div>
         </div>
     </div>
 
-    <button id="roll-btn">🎲 ¡Lanzar Dados (1d100)! 🎲</button>
+    <button id="roll-btn">🎲 ¡Lanzar Dados (1d100 MERP)! 🎲</button>
     <div id="dice-container" class="dice">100</div>
     <div id="result-box" class="result-box" style="display: none;"></div>
 

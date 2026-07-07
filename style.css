@@ -1,17 +1,19 @@
-CSS
-
-
 body {
     font-family: 'Georgia', serif;
-    background-color: #1a1a1a;
-    color: #e0d9c1;
+    background-color: #121212; /* Negro más profundo para el fondo general */
+    color: #ffffff; /* Todo el texto general en BLANCO puro */
     text-align: center;
     padding: 20px;
 }
 
 h1 {
-    color: #ffcc00;
+    color: #ffcc00; /* Oro brillante para el título */
     text-shadow: 2px 2px 4px #000;
+    margin-bottom: 5px;
+}
+
+p {
+    color: #dddddd; /* Gris muy claro para los subtítulos */
 }
 
 .combat-container {
@@ -24,88 +26,105 @@ h1 {
 }
 
 .character-box {
-    background-color: #2c2c2c;
-    border: 2px solid #8b7355;
-    border-radius: 10px;
-    padding: 20px;
+    background-color: #1e1e1e; /* Fondo gris oscuro nítido */
+    border: 3px solid #ffcc00; /* Borde de oro brillante para delimitar bien el cuadro */
+    border-radius: 12px;
+    padding: 25px;
     width: 280px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+    box-shadow: 0px 6px 15px rgba(0,0,0,0.8);
 }
 
-.attacker h2 { color: #ff4d4d; }
-.defender h2 { color: #4da6ff; }
+/* Nombres de los roles en colores muy vivos */
+.attacker h2 { color: #ff4d4d; font-size: 24px; } /* Rojo intenso */
+.defender h2 { color: #3399ff; font-size: 24px; } /* Azul intenso */
 
 .input-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     text-align: left;
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-weight: bold;
-}
-
-input {
-    width: 90%;
-    padding: 8px;
-    background-color: #444;
-    border: 1px solid #8b7355;
-    color: #fff;
-    border-radius: 5px;
+    color: #ffffff; /* Texto de etiquetas en BLANCO para leerlo sin dejarse los ojos */
     font-size: 16px;
 }
 
+/* 🌟 CORRECCIÓN CLAVE: LOS CUADROS DE TEXTO (INPUTS) */
+input {
+    width: 90%;
+    padding: 10px;
+    background-color: #ffffff; /* Fondo BLANCO brillante */
+    border: 2px solid #ffcc00; /* Borde dorado */
+    color: #000000; /* Texto en NEGRO PURO para máxima visibilidad */
+    border-radius: 6px;
+    font-size: 20px; /* Números más grandes */
+    font-weight: bold;
+    text-align: center;
+}
+
+small {
+    color: #aaaaaa; /* Gris claro para el texto pequeño */
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
 button {
-    background-color: #8b1a1a;
-    color: #fff;
+    background-color: #b71c1c; /* Rojo sangre llamativo */
+    color: #ffffff;
     border: 2px solid #ffcc00;
-    padding: 12px 30px;
-    font-size: 18px;
+    padding: 15px 40px;
+    font-size: 20px;
     font-family: 'Georgia', serif;
+    font-weight: bold;
     cursor: pointer;
-    border-radius: 5px;
-    transition: 0.3s;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    transition: 0.2s;
 }
 
 button:hover {
-    background-color: #b22222;
+    background-color: #e53935; /* Rojo más brillante al pasar el ratón */
     transform: scale(1.05);
 }
 
-/* ESTILO DEL DADO Y ANIMACIÓN */
+/* DADO DE 100 CARAS */
 .dice {
-    font-size: 36px;
+    font-size: 42px;
     font-weight: bold;
-    color: #fff;
-    background-color: #d42424;
+    color: #ffffff;
+    background-color: #b71c1c;
     border: 3px solid #ffcc00;
-    width: 80px;
-    height: 80px;
-    line-height: 80px;
+    width: 90px;
+    height: 90px;
+    line-height: 90px;
     margin: 25px auto;
-    border-radius: 12px;
-    display: none; /* Se oculta al principio */
-    box-shadow: 0 0 15px rgba(212, 36, 36, 0.7);
+    border-radius: 14px;
+    display: none;
+    box-shadow: 0 0 25px rgba(233, 30, 99, 0.6);
 }
 
-/* Clase que aplicaremos con JavaScript para que gire */
 .spinning {
     animation: spin 0.15s linear infinite;
 }
 
 @keyframes spin {
     0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.2); }
+    50% { transform: rotate(180deg) scale(1.15); }
     100% { transform: rotate(360deg) scale(1); }
 }
 
+/* CUADRO DE RESULTADO FINAL */
 .result-box {
-    background-color: #222;
-    border: 1px dashed #ffcc00;
-    max-width: 500px;
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 8px;
-    font-size: 18px;
+    background-color: #161616;
+    border: 2px dashed #ffcc00;
+    max-width: 550px;
+    margin: 30px auto;
+    padding: 25px;
+    border-radius: 10px;
+    font-size: 19px;
+    color: #ffffff; /* Todo el texto en blanco */
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.7);
 }

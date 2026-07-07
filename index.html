@@ -17,13 +17,25 @@
             <h2>⚔️ Personaje Atacante</h2>
             
             <div class="input-group">
-                <label for="raza-atq">Raza:</label>
+                <label for="raza-atq">Raza / Especie:</label>
                 <select id="raza-atq">
-                    <option value="humano">🧑 Humano (Dúnadan)</option>
-                    <option value="elfo">🧝 Elfo (Alto Elfo)</option>
-                    <option value="enano">🧔 Enano (Lina-Larga)</option>
-                    <option value="orco">👹 Orco (Uruk-hai)</option>
-                    <option value="hobbit">🦶 Hobbit (Mediano)</option>
+                    <optgroup label="🧑 Humanos">
+                        <option value="humano">🧑 Humano (Dúnadan)</option>
+                        <option value="rohirrim">🐎 Humano (Rohirrim)</option>
+                    </optgroup>
+                    <optgroup label="🧝 Elfos">
+                        <option value="elfo">✨ Alto Elfo (Noldor/Sindar)</option>
+                        <option value="elfo_silvano">🌲 Elfo Silvano</option>
+                    </optgroup>
+                    <optgroup label="🧔 Medianos y Enanos">
+                        <option value="enano">🧔 Enano (Lina-Larga)</option>
+                        <option value="hobbit">🦶 Hobbit (Mediano)</option>
+                    </optgroup>
+                    <optgroup label="👹 La Sombra">
+                        <option value="orco">🔥 Orco (Uruk-hai)</option>
+                        <option value="orco_comun">👺 Orco Común (Snaga)</option>
+                        <option value="trol">🧌 Trol (Olog-hai)</option>
+                    </optgroup>
                 </select>
             </div>
 
@@ -71,13 +83,25 @@
             <h2>🛡️ Personaje Defensor</h2>
 
             <div class="input-group">
-                <label for="raza-def">Raza:</label>
+                <label for="raza-def">Raza / Especie:</label>
                 <select id="raza-def">
-                    <option value="humano">🧑 Humano (Dúnadan)</option>
-                    <option value="elfo">🧝 Elfo (Alto Elfo)</option>
-                    <option value="enano">🧔 Enano (Lina-Larga)</option>
-                    <option value="orco">👹 Orco (Uruk-hai)</option>
-                    <option value="hobbit">🦶 Hobbit (Mediano)</option>
+                    <optgroup label="🧑 Humanos">
+                        <option value="humano">🧑 Humano (Dúnadan)</option>
+                        <option value="rohirrim">🐎 Humano (Rohirrim)</option>
+                    </optgroup>
+                    <optgroup label="🧝 Elfos">
+                        <option value="elfo">✨ Alto Elfo (Noldor/Sindar)</option>
+                        <option value="elfo_silvano">🌲 Elfo Silvano</option>
+                    </optgroup>
+                    <optgroup label="🧔 Medianos y Enanos">
+                        <option value="enano">🧔 Enano (Lina-Larga)</option>
+                        <option value="hobbit">🦶 Hobbit (Mediano)</option>
+                    </optgroup>
+                    <optgroup label="👹 La Sombra">
+                        <option value="orco">🔥 Orco (Uruk-hai)</option>
+                        <option value="orco_comun">👺 Orco Común (Snaga)</option>
+                        <option value="trol">🧌 Trol (Olog-hai)</option>
+                    </optgroup>
                 </select>
             </div>
 
@@ -100,7 +124,6 @@
                 <input type="number" id="bd" value="15">
             </div>
 
-            <!-- NUEVAS MECÁNICAS DE DEFENSA ACTIVA -->
             <div class="input-group">
                 <label class="checkbox-label" style="font-weight: bold; color: #ffcc00; margin-top: 10px;">
                     <input type="checkbox" id="def-escudo"> 🛡️ Equipar Escudo (+20 BD)

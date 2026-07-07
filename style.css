@@ -67,7 +67,6 @@ input[type="number"], select {
 
 input[type="number"] { text-align: center; font-size: 18px; }
 
-/* SECCIÓN DE MODIFICADORES */
 .modifiers-section {
     margin-top: 20px;
     border-top: 1px dashed #555;

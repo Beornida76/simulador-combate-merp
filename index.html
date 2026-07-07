@@ -12,9 +12,21 @@
     <p>El juego de rol de la Tierra Media</p>
 
     <div class="combat-container">
+        <!-- CUADRO ATACANTE -->
         <div class="character-box attacker">
             <h2>⚔️ Personaje Atacante</h2>
             
+            <div class="input-group">
+                <label for="raza-atq">Raza del Atacante:</label>
+                <select id="raza-atq">
+                    <option value="humano">🧑 Humano (Dúnadan)</option>
+                    <option value="elfo">🧝 Elfo (Alto Elfo)</option>
+                    <option value="enano">🧔 Enano (Lina-Larga)</option>
+                    <option value="orco">👹 Orco (Uruk-hai)</option>
+                    <option value="hobbit">🦶 Hobbit (Mediano)</option>
+                </select>
+            </div>
+
             <div class="input-group">
                 <label for="arma">Arma Seleccionada:</label>
                 <select id="arma">
@@ -25,17 +37,31 @@
             </div>
 
             <div class="input-group">
-                <label for="bo">Bono de Ofensiva (BO):</label>
+                <label for="bo">Bono de Ofensiva (BO) Base:</label>
                 <input type="number" id="bo" value="50">
             </div>
         </div>
 
+        <!-- CUADRO DEFENSOR -->
         <div class="character-box defender">
             <h2>🛡️ Personaje Defensor</h2>
+
             <div class="input-group">
-                <label for="bd">Bono de Defensa (BD):</label>
+                <label for="raza-def">Raza del Defensor:</label>
+                <select id="raza-def">
+                    <option value="humano">🧑 Humano (Dúnadan)</option>
+                    <option value="elfo">🧝 Elfo (Alto Elfo)</option>
+                    <option value="enano">🧔 Enano (Lina-Larga)</option>
+                    <option value="orco">👹 Orco (Uruk-hai)</option>
+                    <option value="hobbit">🦶 Hobbit (Mediano)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="bd">Bono de Defensa (BD) Base:</label>
                 <input type="number" id="bd" value="15">
             </div>
+
             <div class="input-group">
                 <label for="ta">Tipo de Armadura (TA):</label>
                 <input type="number" id="ta" min="1" max="20" value="1">
@@ -44,10 +70,12 @@
         </div>
     </div>
 
+    <!-- BOTÓN Y ANIMACIÓN -->
     <button id="roll-btn">🎲 ¡Lanzar Dados! 🎲</button>
     
     <div id="dice-container" class="dice">100</div>
 
+    <!-- RESULTADO -->
     <div id="result-box" class="result-box" style="display: none;"></div>
 
     <script src="script.js"></script>

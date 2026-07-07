@@ -12,9 +12,7 @@ h1 {
     margin-bottom: 5px;
 }
 
-p {
-    color: #dddddd;
-}
+p { color: #dddddd; }
 
 .combat-container {
     display: flex;
@@ -22,7 +20,7 @@ p {
     gap: 30px;
     margin: 30px auto;
     flex-wrap: wrap;
-    max-width: 800px;
+    max-width: 850px;
 }
 
 .character-box {
@@ -30,49 +28,74 @@ p {
     border: 3px solid #ffcc00;
     border-radius: 12px;
     padding: 25px;
-    width: 280px;
+    width: 320px;
     box-shadow: 0px 6px 15px rgba(0,0,0,0.8);
+    text-align: left;
+}
+
+.character-box h2 {
+    text-align: center;
+    margin-top: 0;
 }
 
 .attacker h2 { color: #ff4d4d; font-size: 24px; }
 .defender h2 { color: #3399ff; font-size: 24px; }
 
 .input-group {
-    margin-bottom: 20px;
-    text-align: left;
+    margin-bottom: 15px;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-weight: bold;
     color: #ffffff;
-    font-size: 16px;
+    font-size: 15px;
 }
 
-/* MODIFICADO: Ahora aplica tanto a cuadros de texto como a menús desplegables */
-input, select {
+input[type="number"], select {
     width: 100%;
     padding: 10px;
     background-color: #ffffff;
     border: 2px solid #ffcc00;
     color: #000000;
     border-radius: 6px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
-    box-sizing: border-box; /* Evita que el cuadro se salga de su sitio */
+    box-sizing: border-box;
 }
 
-/* Centrar texto solo en los inputs numéricos */
-input {
-    text-align: center;
+input[type="number"] { text-align: center; font-size: 18px; }
+
+/* SECCIÓN DE MODIFICADORES */
+.modifiers-section {
+    margin-top: 20px;
+    border-top: 1px dashed #555;
+    padding-top: 10px;
 }
 
-small {
-    color: #aaaaaa;
-    display: block;
-    margin-top: 5px;
-    font-size: 13px;
+.modifiers-section h3 {
+    font-size: 15px;
+    color: #ffcc00;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    font-size: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    color: #e0d9c1;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+    cursor: pointer;
 }
 
 button {
@@ -89,10 +112,7 @@ button {
     transition: 0.2s;
 }
 
-button:hover {
-    background-color: #e53935;
-    transform: scale(1.05);
-}
+button:hover { background-color: #e53935; transform: scale(1.05); }
 
 .dice {
     font-size: 42px;
@@ -109,24 +129,21 @@ button:hover {
     box-shadow: 0 0 25px rgba(233, 30, 99, 0.6);
 }
 
-.spinning {
-    animation: spin 0.15s linear infinite;
-}
+.spinning { animation: spin 0.15s linear infinite; }
 
 @keyframes spin {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.15); }
-    100% { transform: rotate(360deg) scale(1); }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .result-box {
     background-color: #161616;
     border: 2px dashed #ffcc00;
-    max-width: 550px;
+    max-width: 600px;
     margin: 30px auto;
     padding: 25px;
     border-radius: 10px;
-    font-size: 19px;
+    font-size: 18px;
     color: #ffffff;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.7);
 }

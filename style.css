@@ -1,0 +1,111 @@
+CSS
+
+
+body {
+    font-family: 'Georgia', serif;
+    background-color: #1a1a1a;
+    color: #e0d9c1;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    color: #ffcc00;
+    text-shadow: 2px 2px 4px #000;
+}
+
+.combat-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 30px auto;
+    flex-wrap: wrap;
+    max-width: 800px;
+}
+
+.character-box {
+    background-color: #2c2c2c;
+    border: 2px solid #8b7355;
+    border-radius: 10px;
+    padding: 20px;
+    width: 280px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+}
+
+.attacker h2 { color: #ff4d4d; }
+.defender h2 { color: #4da6ff; }
+
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input {
+    width: 90%;
+    padding: 8px;
+    background-color: #444;
+    border: 1px solid #8b7355;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #8b1a1a;
+    color: #fff;
+    border: 2px solid #ffcc00;
+    padding: 12px 30px;
+    font-size: 18px;
+    font-family: 'Georgia', serif;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #b22222;
+    transform: scale(1.05);
+}
+
+/* ESTILO DEL DADO Y ANIMACIÓN */
+.dice {
+    font-size: 36px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #d42424;
+    border: 3px solid #ffcc00;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    margin: 25px auto;
+    border-radius: 12px;
+    display: none; /* Se oculta al principio */
+    box-shadow: 0 0 15px rgba(212, 36, 36, 0.7);
+}
+
+/* Clase que aplicaremos con JavaScript para que gire */
+.spinning {
+    animation: spin 0.15s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+.result-box {
+    background-color: #222;
+    border: 1px dashed #ffcc00;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 18px;
+}

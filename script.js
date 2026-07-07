@@ -1,5 +1,4 @@
 document.getElementById('roll-btn').addEventListener('click', function() {
-    // Captura de datos
     const razaAtq = document.getElementById('raza-atq').value;
     const armaSeleccionada = document.getElementById('arma').value;
     let boBase = parseInt(document.getElementById('bo').value) || 0;
@@ -8,7 +7,6 @@ document.getElementById('roll-btn').addEventListener('click', function() {
     const ta = parseInt(document.getElementById('ta').value) || 1;
     let bdBase = parseInt(document.getElementById('bd').value) || 0;
     
-    // Estado y defensas activas
     const llevaEscudo = document.getElementById('def-escudo').checked;
     let puntosParar = parseInt(document.getElementById('def-parar').value) || 0;
     
@@ -31,27 +29,24 @@ document.getElementById('roll-btn').addEventListener('click', function() {
     setTimeout(() => {
         diceContainer.classList.remove('spinning');
         
-        // --- 🎲 SISTEMA DE DADOS TOTAL DE MERP (ABIERTAS ARRIBA Y ABAJO) ---
+        // --- 🎲 SISTEMA DE DADOS MERP ---
         let dadoOriginal = Math.floor(Math.random() * 100) + 1;
         let totalDados = dadoOriginal;
         let logTiradas = [dadoOriginal];
         let tipoDeTiradaTexto = "";
 
         if (dadoOriginal >= 96) {
-            // Tirada Abierta hacia Arriba (Línea de Suerte)
-            tipoDeTiradaTexto = ` <span style="color:#00ff66;">(¡Tirada Abierta hacia Arriba!)</span>`;
+            tipoDeTiradaTexto = ` <span style="color:#00ff66;">(¡Tirada Abierta Arriba!)</span>`;
             while (dadoOriginal >= 96) {
                 dadoOriginal = Math.floor(Math.random() * 100) + 1;
                 totalDados += dadoOriginal;
                 logTiradas.push(dadoOriginal);
             }
         } else if (dadoOriginal <= 5) {
-            // Tirada Abierta hacia Abajo (Infortunio del Destino)
-            tipoDeTiradaTexto = ` <span style="color:#ff3333;">(¡Tirada Abierta hacia Abajo!)</span>`;
+            tipoDeTiradaTexto = ` <span style="color:#ff3333;">(¡Tirada Abierta Abajo!)</span>`;
             let dadoResta = Math.floor(Math.random() * 100) + 1;
             totalDados -= dadoResta;
             logTiradas.push(-dadoResta);
-            // Si el dado restado es un éxito crítico en su propia escala, sigue restando
             while (dadoResta >= 96) {
                 dadoResta = Math.floor(Math.random() * 100) + 1;
                 totalDados -= dadoResta;
@@ -60,7 +55,6 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         }
         diceContainer.innerText = totalDados;
 
-        // Clasificar categoría de arma
         let tipoCategoriaTabla = 'filo';
         if (["maza", "martillo"].includes(armaSeleccionada)) tipoCategoriaTabla = 'contundente';
         if (["gran_hacha", "mandoble"].includes(armaSeleccionada)) tipoCategoriaTabla = 'dos_manos';
@@ -71,26 +65,35 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         let desgloseTextoBO = [];
         let modBD = 0;
         let desgloseTextoBD = [];
-        let mitigacionEnano = 0;
+        let mitigacionDañoracial = 0;
 
-        // Modificadores Raciales Atacante
+        // Modificadores Raciales del Atacante
         if (razaAtq === 'elfo' && ['espada_ancha', 'espada_corta', 'arco_largo', 'arco_corto'].includes(armaSeleccionada)) {
-            modBO += 10; desgloseTextoBO.push("+10 Racial Elfo");
+            modBO += 10; desgloseTextoBO.push("+10 Racial Alto Elfo");
+        } else if (razaAtq === 'elfo_silvano') {
+            if (['arco_largo', 'arco_corto'].includes(armaSeleccionada)) { modBO += 15; desgloseTextoBO.push("+15 Puntería Silvana"); }
+        } else if (razaAtq === 'rohirrim') {
+            if (['espada_ancha', 'espada_corta'].includes(armaSeleccionada)) { modBO += 10; desgloseTextoBO.push("+10 Acero de Rohan"); }
         } else if (razaAtq === 'enano' && armaSeleccionada === 'gran_hacha') {
             modBO += 10; desgloseTextoBO.push("+10 Orgullo Enano");
         } else if (razaAtq === 'orco' && ['espada_ancha', 'cimitarra', 'maza', 'gran_hacha'].includes(armaSeleccionada)) {
-            modBO += 5; desgloseTextoBO.push("+5 Furia Orca");
+            modBO += 5; desgloseTextoBO.push("+5 Furia Uruk-hai");
         } else if (razaAtq === 'orco' && tipoCategoriaTabla === 'proyectil') {
-            modBO -= 10; desgloseTextoBO.push("-10 Estorbo del Sol");
+            modBO -= 10; desgloseTextoBO.push("-10 Luz Cegadora");
+        } else if (razaAtq === 'orco_comun') {
+            modBO -= 5; desgloseTextoBO.push("-5 Debilidad Snaga");
+            if (modFlanco || modEspalda) { modBO += 10; desgloseTextoBO.push("+10 Emboscada Rastrera Orco"); }
+        } else if (razaAtq === 'trol') {
+            if (tipoCategoriaTabla === 'dos_manos') { modBO += 20; desgloseTextoBO.push("+20 Fuerza Bruta de Trol"); }
+            if (tipoCategoriaTabla === 'proyectil') { modBO -= 50; desgloseTextoBO.push("-50 Torpeza de Trol con Proyectiles"); }
         } else if (razaAtq === 'hobbit' && armaSeleccionada === 'honda') {
             modBO += 15; desgloseTextoBO.push("+15 Puntería de la Comarca");
         } else if (razaAtq === 'humano') {
-            modBO += 5; desgloseTextoBO.push("+5 Linaje Humano");
+            modBO += 5; desgloseTextoBO.push("+5 Linaje Dúnadan");
         }
 
-        // Restricción de tamaño oficial
         if (razaAtq === 'hobbit' && tipoCategoriaTabla === 'dos_manos') {
-            modBO -= 30; desgloseTextoBO.push("<span style='color:#ff4d4d;'>-30 Tamaño (Incapaz de blandir Arma a 2M)</span>");
+            modBO -= 30; desgloseTextoBO.push("<span style='color:#ff4d4d;'>-30 Restricción Física Mediano</span>");
         }
 
         // Modificadores de situación Atacante
@@ -99,69 +102,63 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         if (modAtqAturdido) { modBO -= 20; desgloseTextoBO.push("-20 Aturdido"); }
         if (modAtqHerido) { modBO -= 10; desgloseTextoBO.push("-10 Herido"); }
 
-        // Modificadores Raciales Defensor
-        if (razaDef === 'hobbit') { modBD += 15; desgloseTextoBD.push("+15 Tamaño Escurridizo"); }
-        if (razaDef === 'elfo') { modBD += 5; desgloseTextoBD.push("+5 Reflejos Noldor"); }
-        if (razaDef === 'enano') { mitigacionEnano = 2; }
-
-        // 🛡️ REGLAS DE ESCUDO REAL
-        if (llevaEscudo) {
-            if (modEspalda) {
-                desgloseTextoBD.push("+0 Escudo (Inútil por la Espalda)");
-            } else if (modDefAturdido) {
-                desgloseTextoBD.push("+0 Escudo (Defensor incapaz de levantarlo por Aturdimiento)");
-            } else {
-                modBD += 20;
-                desgloseTextoBD.push("+20 Escudo Activo");
-            }
+        // Modificadores Raciales del Defensor
+        if (razaDef === 'hobbit') { modBD += 15; desgloseTextoBD.push("+15 Blanco Pequeño"); }
+        else if (razaDef === 'elfo') { modBD += 5; desgloseTextoBD.push("+5 Reflejos Noldor"); }
+        else if (razaDef === 'elfo_silvano') { modBD += 10; desgloseTextoBD.push("+10 Agilidad de los Bosques"); }
+        else if (razaDef === 'enano') { mitigacionDañoracial = 2; }
+        else if (razaDef === 'trol') { 
+            modBD -= 15; desgloseTextoBD.push("-15 Blanco Gigante (Fácil de impactar)"); 
+            mitigacionDañoracial = 8; // Piel de roca
         }
 
-        // ⚔️ REGLAS DE LA MECÁNICA DE PARAR
+        // Escudo
+        if (llevaEscudo) {
+            if (modEspalda) { desgloseTextoBD.push("+0 Escudo (Espalda indefensa)"); }
+            else if (modDefAturdido) { desgloseTextoBD.push("+0 Escudo (Incapaz por Aturdimiento)"); }
+            else { modBD += 20; desgloseTextoBD.push("+20 Escudo Activo"); }
+        }
+
+        // Parada
         if (puntosParar > 0) {
             if (modDefAturdido || modDefSorprendido || modEspalda) {
-                desgloseTextoBD.push("+0 Parada (Imposible parar Aturdido, Sorprendido o por la Espalda)");
+                desgloseTextoBD.push("+0 Parada (Imposible ejecutar)");
             } else {
-                modBD += puntosParar;
-                desgloseTextoBD.push(`+${puntosParar} Parada con Arma`);
+                modBD += puntosParar; desgloseTextoBD.push(`+${puntosParar} Puntos de Parada`);
             }
         }
 
-        // Estados perjudiciales del defensor
-        if (modDefAturdido) {
-            modBD -= bdBase;
-            desgloseTextoBD.push(`-${bdBase} Pérdida de BD Base por Aturdimiento`);
-        }
+        if (modDefAturdido) { modBD -= bdBase; desgloseTextoBD.push(`-${bdBase} BD Base perdida por Aturdimiento`); }
         if (modDefSorprendido) { modBD -= 20; desgloseTextoBD.push("-20 Sorprendido"); }
 
-        // Totales finales
         let boFinal = boBase + modBO;
         let bdFinal = bdBase + modBD;
         let resultadoTabla = totalDados + boFinal - bdFinal;
 
-        // --- 💥 TABLA DE PIFIAS DINÁMICAS POR ARMA (DADO ORIGINAL 01-04) ---
+        // --- 💥 TABLA DE PIFIAS ---
         let respuestaCombate = "";
         let esPifia = logTiradas[0] <= 4;
 
         if (esPifia) {
             let textoPifia = "";
             if (tipoCategoriaTabla === 'filo') {
-                textoPifia = "💥 <strong>PIFIA DE FILO:</strong> El arma resbala o impacta en falso contra la armadura enemiga. El atacante se corta a sí mismo sufriendo <strong>5 PV directos</strong>, queda <strong>Aturdido 1 asalto</strong> y el filo queda mellado (-5 al BO hasta afilarse).";
+                textoPifia = "💥 <strong>PIFIA DE FILO:</strong> El arma impacta en falso contra el suelo. Te cortas a ti mismo sufriendo <strong>5 PV directos</strong>, quedas <strong>Aturdido 1 asalto</strong> y el filo queda mellado (-5 al BO).";
             } else if (tipoCategoriaTabla === 'contundente') {
-                textoPifia = "💥 <strong>PIFIA CONTUNDENTE:</strong> Calculas mal el arco de golpeo y la inercia te disloca levemente la muñeca. El arma no impacta, sufres un dolor espantoso y arrastras un **-15 al BO durante los siguientes 3 asaltos**.";
+                textoPifia = "💥 <strong>PIFIA CONTUNDENTE:</strong> Calculas mal el impacto y la inercia te deforma la muñeca. Sufres un dolor agudo y arrastras un **-15 al BO durante los siguientes 3 asaltos**.";
             } else if (tipoCategoriaTabla === 'dos_manos') {
-                textoPifia = "💥 <strong>PIFIA A DOS MANOS:</strong> ¡El brutal peso del arma te vence por completo! Fallas el golpe y te vas al suelo con estrépito. Quedas en **posición tendida (-30 BD)** y completamente **Aturdido durante 2 asaltos**.";
+                textoPifia = "💥 <strong>PIFIA A DOS MANOS:</strong> ¡El peso te vence! Fallas el golpe y te vas al suelo con estrépito. Quedas en **posición tendida (-30 BD)** y **Aturdido durante 2 asaltos**.";
             } else if (tipoCategoriaTabla === 'proyectil') {
-                textoPifia = "💥 <strong>PIFIA DE PROYECTIL:</strong> ¡La cuerda del arco se rompe con un violento restallido! El latigazo te golpea directamente en la cara: sufres <strong>3 PV</strong> y quedas **Aturdido 2 asaltos** buscando repuesto.";
+                textoPifia = "💥 <strong>PIFIA DE PROYECTIL:</strong> ¡La cuerda del arco se rompe con un violento restallido! El latigazo te golpea la cara: sufres <strong>3 PV</strong> y quedas **Aturdido 2 asaltos**.";
             }
 
             respuestaCombate = `
-                <div style="color: #ff4d4d; font-size: 22px; font-weight: bold; margin-bottom: 10px;">❌ ¡FALLO CRÍTICO / PIFIA REAL! ❌</div>
+                <div style="color: #ff4d4d; font-size: 22px; font-weight: bold; margin-bottom: 10px;">❌ ¡FALLO CRÍTICO / PIFIA! ❌</div>
                 <div style="background-color: #2b1111; padding: 14px; border-radius: 6px; border-left: 5px solid #ff4d4d; text-align: left; font-size: 15px; color:#ffb3b3;">
                     ${textoPifia}
                 </div>
             `;
         } else {
-            // --- CÓDIGO DE LAS TABLAS DE DAÑO NORMAL ---
+            // --- TABLAS DE DAÑO ---
             let pvDaño = 0;
             let rangoCritico = "Ninguno";
             let descCritico = "";
@@ -203,13 +200,12 @@ document.getElementById('roll-btn').addEventListener('click', function() {
                 else { pvDaño = 36; rangoCritico = (ta <= 4) ? "E" : "C"; }
             }
 
-            // Mitigación Enana pasiva
-            if (razaDef === 'enano' && pvDaño > 0) {
-                pvDaño = Math.max(1, pvDaño - mitigacionEnano);
-                descCritico += `<br><small style="color:#4da6ff;">🛡️ Robustez Enana: Absorbe ${mitigacionEnano} PV del golpe base.</small>`;
+            // Mitigación por robustez de raza (Enano o Trol)
+            if (mitigacionDañoracial > 0 && pvDaño > 0) {
+                pvDaño = Math.max(1, pvDaño - mitigacionDañoracial);
+                descCritico += `<br><small style="color:#4da6ff;">🛡️ Robustez Física: Absorbe ${mitigacionDañoracial} PV del golpe debido a su naturaleza densa o coriácea.</small>`;
             }
 
-            // Mensajes descriptivos de críticos
             if (rangoCritico !== "Ninguno") {
                 if (tipoCategoriaTabla === 'filo' || tipoCategoriaTabla === 'dos_manos') {
                     const criticosCorte = {
@@ -253,16 +249,17 @@ document.getElementById('roll-btn').addEventListener('click', function() {
             `;
         }
         
-        // Nombres cosméticos
         const nombresArmas = {
             espada_ancha: "Espada Ancha", espada_corta: "Espada Corta", daga: "Daga", cimitarra: "Cimitarra",
             maza: "Maza", martillo: "Martillo de Guerra", gran_hacha: "Gran Hacha", mandoble: "Mandoble",
             arco_largo: "Arco Largo", arco_corto: "Arco Corto", honda: "Honda"
         };
-        const nombresRazas = { humano: "Humano", elfo: "Elfo", enano: "Enano", orco: "Orco", hobbit: "Hobbit" };
+        const nombresRazas = { 
+            humano: "Humano Dúnadan", rohirrim: "Humano Rohirrim", elfo: "Alto Elfo", elfo_silvano: "Elfo Silvano",
+            enano: "Enano", hobbit: "Hobbit", orco: "Uruk-hai", orco_comun: "Orco Snaga", trol: "Trol Olog-hai" 
+        };
         const desgloseDadosImpresion = logTiradas.map(n => n < 0 ? `(${n})` : n).join(' + ');
 
-        // Render final del resultado
         resultBox.innerHTML = `
             <h3 style="color:#ffcc00; border-bottom: 1px solid #8b7355; padding-bottom: 8px; margin-top: 0;">⚔️ Crónica de Combate Táctico ⚔️</h3>
             

@@ -1,5 +1,42 @@
+const bibliotecaNarrativa = {
+    pifias: {
+        filo: [
+            "¡Un error fatal! El atacante calcula mal la trayectoria, tropieza con una raíz y su propio filo dibuja un surco sangriento en su antebrazo ante la mirada atónita de su rival.",
+            "¡El acero ruge... contra el propio portador! En un intento de finta veloz, el arma rebota contra una piedra del suelo hiriendo la pierna del atacante."
+        ],
+        contundente: [
+            "¡Inercia desastrosa! Fuerza el golpe con tanta violencia que la muñeca cruje de mala manera, quedando completamente inutilizada para el resto del asalto.",
+            "¡El golpe va completamente al aire! El peso del arma desequilibra al atacante, dislocándole el hombro levemente en un arco descendente desastroso."
+        ],
+        dos_manos: [
+            "¡El peso de la codicia! Levanta el arma pesada perdiendo el centro de gravedad. El hierro muerde el fango de la Tierra Media arrojándolo al suelo de espaldas.",
+            "¡Fallo colosal! El impulso hace girar al atacante sobre su propio eje. Cae de rodillas de forma humillante mientras el arma rueda lejos de su alcance."
+        ],
+        proyectil: [
+            "¡CHAS! Al tensar el arco más allá de los límites, la madera noble cede y la cuerda estalla con violencia golpeando directamente el rostro del tirador.",
+            "La cuerda se enreda de forma nefasta en el protector de brazo. El proyectil sale desviado hacia el cielo mientras el impacto magulla los dedos del tirador."
+        ]
+    },
+    golpesNormales: {
+        fallo: [
+            "El ataque desciende con fuerza, pero el defensor ejecuta una finta elegante dejando que el aire sea el único damnificado.",
+            "El golpe impacta de lleno, pero la gruesa protección absorbe toda la energía cinemática. Solo se escucha el eco del acero frustrado."
+        ],
+        leve: [
+            "Un ataque rápido y preciso. Consigue esquivar las defensas mayores y traza un corte menor en la carne del rival.",
+            "El golpe conecta sólidamente. No hay huesos rotos, pero el impacto rompe el cuero y deja un doloroso hematoma morado."
+        ]
+    },
+    criticos: {
+        A: ["¡Un golpe certero! El acero raspa la armadura y arranca un quejido. Un corte limpio que tiñe la ropa de color carmesí."],
+        B: ["¡Impacto directo! El arma penetra con saña el tejido blando. El defensor da un paso atrás mientras la sangre empieza a brotar de manera constante."],
+        C: ["¡Crujido de guerra! Un golpe devastador quiebra las costillas del objetivo. El aire escapa de sus pulmones de golpe y dobla las rodillas por el dolor."],
+        D: ["¡Ataque brutal! La fuerza del golpe desgarra músculos y astilla el hueso interno. El defensor queda completamente conmocionado, tambaleándose mareado."],
+        E: ["¡Un golpe digno de las canciones de los bardos! El impacto destroza la defensa biológica del rival en una explosión de violencia visceral. ¡El rival cae al suelo entre espasmos y horror!"]
+    }
+};
+
 document.getElementById('roll-btn').addEventListener('click', function() {
-    // Captura inicial de datos
     const razaAtq = document.getElementById('raza-atq').value;
     const armaSeleccionada = document.getElementById('arma').value;
     let boBase = parseInt(document.getElementById('bo').value) || 0;
@@ -13,17 +50,24 @@ document.getElementById('roll-btn').addEventListener('click', function() {
     const llevaEscudo = document.getElementById('def-escudo').checked;
     let puntosParar = parseInt(document.getElementById('def-parar').value) || 0;
     
-    const modFlanco = document.getElementById('mod-flanco').checked;
-    const modEspalda = document.getElementById('mod-espalda').checked;
-    const modAtqAturdido = document.getElementById('mod-atq-aturdido').checked;
-    const modAtqHerido = document.getElementById('mod-atq-herido').checked;
-    
-    const modDefAturdido = document.getElementById('mod-def-aturdido').checked;
-    const modDefSorprendido = document.getElementById('mod-def-sorprendido').checked;
+    let modFlanco = document.getElementById('mod-flanco').checked;
+    let modEspalda = document.getElementById('mod-espalda').checked;
+    let modAtqAturdido = document.getElementById('mod-atq-aturdido').checked;
+    let modAtqHerido = document.getElementById('mod-atq-herido').checked;
+    let modDefAturdido = document.getElementById('mod-def-aturdido').checked;
+    let modDefSorprendido = document.getElementById('mod-def-sorprendido').checked;
 
     const diceContainer = document.getElementById('dice-container');
     const resultBox = document.getElementById('result-box');
+    const containerPrincipal = document.querySelector('.combat-container');
+    const boxDefensor = document.querySelector('.character-box.defender');
+    const boxAtacante = document.querySelector('.character-box.attacker');
     
+    resultBox.classList.remove('show');
+    boxDefensor.classList.remove('flash-damage');
+    boxAtacante.classList.remove('flash-damage');
+    containerPrincipal.classList.remove('shake-effect');
+
     diceContainer.innerText = "...";
     diceContainer.style.display = 'block';
     diceContainer.classList.add('spinning');
@@ -32,21 +76,20 @@ document.getElementById('roll-btn').addEventListener('click', function() {
     setTimeout(() => {
         diceContainer.classList.remove('spinning');
         
-        // --- 🎲 SISTEMA DE DADOS MERP ---
         let dadoOriginal = Math.floor(Math.random() * 100) + 1;
         let totalDados = dadoOriginal;
         let logTiradas = [dadoOriginal];
         let tipoDeTiradaTexto = "";
 
         if (dadoOriginal >= 96) {
-            tipoDeTiradaTexto = ` <span style="color:#00ff66;">(¡Tirada Abierta Arriba!)</span>`;
+            tipoDeTiradaTexto = ` <span style="color:#00ff66;">(¡Abierta Arriba!)</span>`;
             while (dadoOriginal >= 96) {
                 dadoOriginal = Math.floor(Math.random() * 100) + 1;
                 totalDados += dadoOriginal;
                 logTiradas.push(dadoOriginal);
             }
         } else if (dadoOriginal <= 5) {
-            tipoDeTiradaTexto = ` <span style="color:#ff3333;">(¡Tirada Abierta Abajo!)</span>`;
+            tipoDeTiradaTexto = ` <span style="color:#ff3333;">(¡Abierta Abajo!)</span>`;
             let dadoResta = Math.floor(Math.random() * 100) + 1;
             totalDados -= dadoResta;
             logTiradas.push(-dadoResta);
@@ -63,58 +106,46 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         if (["gran_hacha", "mandoble"].includes(armaSeleccionada)) tipoCategoriaTabla = 'dos_manos';
         if (["arco_largo", "arco_corto", "honda"].includes(armaSeleccionada)) tipoCategoriaTabla = 'proyectil';
 
-        // Modificadores de combate
         let modBO = 0; let desgloseTextoBO = [];
         let modBD = 0; let desgloseTextoBD = [];
         let mitigacionDañoracial = 0;
 
-        // Raciales Atacante
-        if (razaAtq === 'elfo' && ['espada_ancha', 'espada_corta', 'arco_largo', 'arco_corto'].includes(armaSeleccionada)) { modBO += 10; desgloseTextoBO.push("+10 Racial Alto Elfo"); }
-        else if (razaAtq === 'elfo_silvano' && ['arco_largo', 'arco_corto'].includes(armaSeleccionada)) { modBO += 15; desgloseTextoBO.push("+15 Puntería Silvana"); }
-        else if (razaAtq === 'rohirrim' && ['espada_ancha', 'espada_corta'].includes(armaSeleccionada)) { modBO += 10; desgloseTextoBO.push("+10 Acero de Rohan"); }
-        else if (razaAtq === 'enano' && armaSeleccionada === 'gran_hacha') { modBO += 10; desgloseTextoBO.push("+10 Orgullo Enano"); }
-        else if (razaAtq === 'orco' && ['espada_ancha', 'cimitarra', 'maza', 'gran_hacha'].includes(armaSeleccionada)) { modBO += 5; desgloseTextoBO.push("+5 Furia Uruk-hai"); }
-        else if (razaAtq === 'orco_comun') { modBO -= 5; desgloseTextoBO.push("-5 Debilidad Snaga"); if (modFlanco || modEspalda) { modBO += 10; desgloseTextoBO.push("+10 Emboscada Rastrera"); } }
-        else if (razaAtq === 'trol') { if (tipoCategoriaTabla === 'dos_manos') { modBO += 20; desgloseTextoBO.push("+20 Fuerza de Trol"); } if (tipoCategoriaTabla === 'proyectil') { modBO -= 50; desgloseTextoBO.push("-50 Torpeza Proyectil"); } }
-        else if (razaAtq === 'hobbit' && armaSeleccionada === 'honda') { modBO += 15; desgloseTextoBO.push("+15 Puntería Mediano"); }
+        if (razaAtq === 'elfo' && ['espada_ancha', 'espada_corta', 'arco_largo', 'arco_corto'].includes(armaSeleccionada)) modBO += 10;
+        else if (razaAtq === 'elfo_silvano' && ['arco_largo', 'arco_corto'].includes(armaSeleccionada)) modBO += 15;
+        else if (razaAtq === 'rohirrim' && ['espada_ancha', 'espada_corta'].includes(armaSeleccionada)) modBO += 10;
+        else if (razaAtq === 'enano' && armaSeleccionada === 'gran_hacha') modBO += 10;
+        else if (razaAtq === 'orco' && ['espada_ancha', 'cimitarra', 'maza', 'gran_hacha'].includes(armaSeleccionada)) modBO += 5;
+        else if (razaAtq === 'orco_comun') { modBO -= 5; if (modFlanco || modEspalda) modBO += 10; }
+        else if (razaAtq === 'trol') { if (tipoCategoriaTabla === 'dos_manos') modBO += 20; if (tipoCategoriaTabla === 'proyectil') modBO -= 50; }
+        else if (razaAtq === 'hobbit' && armaSeleccionada === 'honda') modBO += 15;
 
-        if (razaAtq === 'hobbit' && tipoCategoriaTabla === 'dos_manos') { modBO -= 30; desgloseTextoBO.push("-30 Restricción Física"); }
+        if (razaAtq === 'hobbit' && tipoCategoriaTabla === 'dos_manos') modBO -= 30;
 
-        if (modFlanco) { modBO += 15; desgloseTextoBO.push("+15 Flanco"); }
-        if (modEspalda) { modBO += 35; desgloseTextoBO.push("+35 Espalda"); }
-        if (modAtqAturdido) { modBO -= 20; desgloseTextoBO.push("-20 Aturdido"); }
-        if (modAtqHerido) { modBO -= 10; desgloseTextoBO.push("-10 Herido"); }
+        if (modFlanco) modBO += 15;
+        if (modEspalda) modBO += 35;
+        if (modAtqAturdido) modBO -= 20;
+        if (modAtqHerido) modBO -= 10;
 
-        // Raciales Defensor
-        if (razaDef === 'hobbit') { modBD += 15; desgloseTextoBD.push("+15 Blanco Pequeño"); }
-        else if (razaDef === 'elfo') { modBD += 5; desgloseTextoBD.push("+5 Reflejos Noldor"); }
-        else if (razaDef === 'elfo_silvano') { modBD += 10; desgloseTextoBD.push("+10 Agilidad Silvana"); }
-        else if (razaDef === 'enano') { mitigacionDañoracial = 2; }
-        else if (razaDef === 'trol') { modBD -= 15; desgloseTextoBD.push("-15 Blanco Gigante"); mitigacionDañoracial = 8; }
+        if (razaDef === 'hobbit') modBD += 15;
+        else if (razaDef === 'elfo') modBD += 5;
+        else if (razaDef === 'elfo_silvano') modBD += 10;
+        else if (razaDef === 'enano') mitigacionDañoracial = 2;
+        else if (razaDef === 'trol') { modBD -= 15; mitigacionDañoracial = 8; }
 
-        if (llevaEscudo) {
-            if (modEspalda || modDefAturdido) desgloseTextoBD.push("+0 Escudo (Anulado)");
-            else { modBD += 20; desgloseTextoBD.push("+20 Escudo"); }
-        }
-
-        if (puntosParar > 0) {
-            if (modDefAturdido || modDefSorprendido || modEspalda) desgloseTextoBD.push("+0 Parada (Imposible)");
-            else { modBD += puntosParar; desgloseTextoBD.push(`+${puntosParar} Parada`); }
-        }
-
-        if (modDefAturdido) { modBD -= bdBase; desgloseTextoBD.push(`-${bdBase} BD Aturdimiento`); }
-        if (modDefSorprendido) { modBD -= 20; desgloseTextoBD.push("-20 Sorprendido"); }
+        if (llevaEscudo && !modEspalda && !modDefAturdido) modBD += 20;
+        if (puntosParar > 0 && !modDefAturdido && !modDefSorprendido && !modEspalda) modBD += puntosParar;
+        if (modDefAturdido) modBD -= bdBase;
+        if (modDefSorprendido) modBD -= 20;
 
         let boFinal = boBase + modBO;
         let bdFinal = bdBase + modBD;
         let resultadoTabla = totalDados + boFinal - bdFinal;
 
-        // Variables de control de estado dinámicas
         let dañoAplicadoDefensor = 0;
         let dañoAplicadoAtacante = 0;
         let estadoFinalAtacante = "Saludable";
         let estadoFinalDefensor = "Saludable";
-        let respuestaCombate = "";
+        let cronicaNarrativa = "";
         
         let nuevoAturdidoDef = false;
         let nuevoAturdidoAtq = false;
@@ -122,34 +153,19 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         let esPifia = logTiradas[0] <= 4;
 
         if (esPifia) {
-            let textoPifia = "";
-            if (tipoCategoriaTabla === 'filo') {
-                dañoAplicadoAtacante = 5; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO"; nuevoAturdidoAtq = true;
-                textoPifia = "💥 <strong>PIFIA DE FILO:</strong> Te cortas a ti mismo sufriendo <strong>5 PV directos</strong>, quedas <strong>Aturdido 1 asalto</strong> y el filo queda mellado (-5 al BO).";
-            } else if (tipoCategoriaTabla === 'contundente') {
-                estadoFinalAtacante = "⚠️ MUÑECA DISLOCADA (-15 BO)";
-                textoPifia = "💥 <strong>PIFIA CONTUNDENTE:</strong> La inercia te deforma la muñeca. Arrastras un **-15 al BO durante los siguientes 3 asaltos**.";
-            } else if (tipoCategoriaTabla === 'dos_manos') {
-                estadoFinalAtacante = "⚠️ DERRIBADO Y ATURDIDO"; nuevoAturdidoAtq = true;
-                textoPifia = "💥 <strong>PIFIA A DOS MANOS:</strong> ¡El peso te vence! Fallas el golpe y te vas al suelo. Quedas en **posición tendida (-30 BD)** y **Aturdido durante 2 asaltos**.";
-            } else if (tipoCategoriaTabla === 'proyectil') {
-                dañoAplicadoAtacante = 3; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO"; nuevoAturdidoAtq = true;
-                textoPifia = "💥 <strong>PIFIA DE PROYECTIL:</strong> ¡La cuerda se rompe! El latigazo te causa <strong>3 PV</strong> y quedas **Aturdido 2 asaltos**.";
-            }
+            const pifiasOpciones = bibliotecaNarrativa.pifias[tipoCategoriaTabla];
+            cronicaNarrativa = pifiasOpciones[Math.floor(Math.random() * pifiasOpciones.length)];
+            boxAtacante.classList.add('flash-damage');
+
+            if (tipoCategoriaTabla === 'filo') { dañoAplicadoAtacante = 5; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO"; nuevoAturdidoAtq = true; }
+            else if (tipoCategoriaTabla === 'contundente') { estadoFinalAtacante = "⚠️ MUÑECA DISLOCADA (-15 BO)"; }
+            else if (tipoCategoriaTabla === 'dos_manos') { estadoFinalAtacante = "⚠️ DERRIBADO Y ATURDIDO"; nuevoAturdidoAtq = true; }
+            else if (tipoCategoriaTabla === 'proyectil') { dañoAplicadoAtacante = 3; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO"; nuevoAturdidoAtq = true; }
             estadoFinalDefensor = "Ileso";
-            respuestaCombate = `
-                <div style="color: #ff4d4d; font-size: 20px; font-weight: bold; margin-bottom: 10px;">❌ ¡FALLO CRÍTICO / PIFIA! ❌</div>
-                <div style="background-color: #2b1111; padding: 14px; border-radius: 6px; border-left: 5px solid #ff4d4d; text-align: left; font-size: 15px; color:#ffb3b3;">
-                    ${textoPifia}
-                </div>
-            `;
         } else {
-            // --- TABLAS DE DAÑO NORMAL ---
             let pvDañoBase = 0;
             let rangoCritico = "Ninguno";
-            let descCritico = "";
             let pvCriticoExtra = 0;
-            let efectosEspecialesCritico = [];
 
             if (tipoCategoriaTabla === 'filo') {
                 if (resultadoTabla <= 40) pvDañoBase = 0;
@@ -188,90 +204,81 @@ document.getElementById('roll-btn').addEventListener('click', function() {
                 else { pvDañoBase = 36; rangoCritico = (ta <= 4) ? "E" : "C"; }
             }
 
-            // Mitigación por robustez
             if (mitigacionDañoracial > 0 && pvDañoBase > 0) {
                 pvDañoBase = Math.max(1, pvDañoBase - mitigacionDañoracial);
-                descCritico += `<br><small style="color:#4da6ff;">🛡️ Robustez: Absorbe ${mitigacionDañoracial} PV del golpe.</small>`;
             }
 
-            // Desglose de críticos y activación de flags de estado
-            if (rangoCritico !== "Ninguno") {
-                if (tipoCategoriaTabla === 'filo' || tipoCategoriaTabla === 'dos_manos') {
-                    const mapas = {
-                        "A": { pv: 3, txt: "⚔️ <strong>Rango A:</strong> Tajo superficial. +3 PV.", aturdido: false },
-                        "B": { pv: 5, txt: "🩸 <strong>Rango B:</strong> Herida sangrante. +5 PV y sangra.", aturdido: false },
-                        "C": { pv: 8, txt: "🦴 <strong>Rango C:</strong> Rompe costilla. +8 PV y **Aturdido 1 asalto**.", aturdido: true },
-                        "D": { pv: 12, txt: "💀 <strong>Rango D:</strong> Golpe severo. +12 PV y **Aturdido 2 asaltos**.", aturdido: true },
-                        "E": { pv: 20, txt: "🦅 <strong>Rango E:</strong> ¡Corte arterial! +20 PV y **Aturdido 3 asaltos**.", aturdido: true }
-                    };
-                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico;
-                    if (mapas[rangoCritico].aturdido) { nuevoAturdidoDef = true; efectosEspecialesCritico.push("💥 ATURDIDO"); }
-                } else if (tipoCategoriaTabla === 'contundente') {
-                    const mapas = {
-                        "A": { pv: 2, txt: "💥 <strong>Rango A:</strong> Contusión. +2 PV.", aturdido: false },
-                        "B": { pv: 5, txt: "🦴 <strong>Rango B:</strong> Impacto sordo. +5 PV y **Aturdido 1 asalto**.", aturdido: true },
-                        "C": { pv: 8, txt: "🧠 <strong>Rango C:</strong> Traumatismo craneal. +8 PV y **Aturdido 2 asaltos**.", aturdido: true },
-                        "D": { pv: 12, txt: "🦵 <strong>Rango D:</strong> Rompe hueso. +12 PV y **Aturdido 3 asaltos**.", aturdido: true },
-                        "E": { pv: 20, txt: "💀 <strong>Rango E:</strong> Fractura aplastante. +20 PV e **Incapacitado 4 asaltos**.", aturdido: true }
-                    };
-                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico;
-                    if (mapas[rangoCritico].aturdido) { nuevoAturdidoDef = true; efectosEspecialesCritico.push("💥 ATURDIDO"); }
-                } else if (tipoCategoriaTabla === 'proyectil') {
-                    const mapas = {
-                        "A": { pv: 3, txt: "🎯 <strong>Rango A:</strong> Flecha alojada. +3 PV.", aturdido: false },
-                        "B": { pv: 5, txt: "🩸 <strong>Rango B:</strong> Traspasa tejido. +5 PV.", aturdido: false },
-                        "C": { pv: 8, txt: "🏹 <strong>Rango C:</strong> Perforación dolorosa. +8 PV y **Aturdido 1 asalto**.", aturdido: true },
-                        "D": { pv: 12, txt: "👁️ <strong>Rango D:</strong> Impacto orgánico. +12 PV y **Aturdido 2 asaltos**.", aturdido: true },
-                        "E": { pv: 22, txt: "💀 <strong>Rango E:</strong> Atraviesa zona vital. +22 PV e **Inconsciente**.", aturdido: true }
-                    };
-                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico;
-                    if (mapas[rangoCritico].aturdido) { nuevoAturdidoDef = true; efectosEspecialesCritico.push("💥 ATURDIDO"); }
-                }
+            if (resultadoTabla <= 40 || pvDañoBase === 0) {
+                const opcionesFallo = bibliotecaNarrativa.golpesNormales.fallo;
+                cronicaNarrativa = opcionesFallo[Math.floor(Math.random() * opcionesFallo.length)];
+            } else if (rangoCritico === "Ninguno") {
+                const opcionesLeve = bibliotecaNarrativa.golpesNormales.leve;
+                cronicaNarrativa = opcionesLeve[Math.floor(Math.random() * opcionesLeve.length)];
+                boxDefensor.classList.add('flash-damage');
             } else {
-                descCritico = "⚔️ Golpe directo sin efectos críticos graves.";
+                const textosCriticos = bibliotecaNarrativa.criticos[rangoCritico];
+                cronicaNarrativa = textosCriticos[Math.floor(Math.random() * textosCriticos.length)];
+                boxDefensor.classList.add('flash-damage');
+                
+                if (["C", "D", "E"].includes(rangoCritico)) {
+                    containerPrincipal.classList.add('shake-effect');
+                }
+
+                const mapasValores = {
+                    "A": { pv: 3, aturdido: false, txt: "💥 ATURDIDO" },
+                    "B": { pv: 5, aturdido: false, txt: "🩸 SANGRANDO" },
+                    "C": { pv: 8, aturdido: true, txt: "🦴 ROTURA / ATURDIDO" },
+                    "D": { pv: 12, aturdido: true, txt: "💀 TRAUMA SEVERO / ATURDIDO" },
+                    "E": { pv: 20, aturdido: true, txt: "🦅 CRÍTICO MORTAL / ATURDIDO" }
+                };
+                
+                pvCriticoExtra = mapasValores[rangoCritico].pv;
+                if (mapasValores[rangoCritico].aturdido) nuevoAturdidoDef = true;
+                estadoFinalDefensor = mapasValores[rangoCritico].txt;
             }
 
             dañoAplicadoDefensor = pvDañoBase + pvCriticoExtra;
             estadoFinalAtacante = "Listo";
-            
-            if (dañoAplicadoDefensor > 0) {
-                estadoFinalDefensor = efectosEspecialesCritico.length > 0 ? efectosEspecialesCritico.join(' | ') : "Herido Leve";
-            } else {
-                estadoFinalDefensor = "Ileso";
-            }
-
-            respuestaCombate = `
-                <div style="font-size: 26px; color: #ffcc00; font-weight: bold; margin-bottom: 12px;">
-                    💥 Daño Total: ${dañoAplicadoDefensor} PV 💥
-                </div>
-                <div style="background-color: #252525; padding: 12px; border-radius: 6px; border-left: 4px solid #b71c1c; text-align: left; font-size: 15px;">
-                    ${descCritico}
-                </div>
-            `;
+            if (dañoAplicadoDefensor > 0 && rangoCritico === "Ninguno") estadoFinalDefensor = "Herido Leve";
+            if (dañoAplicadoDefensor === 0) estadoFinalDefensor = "Ileso";
         }
 
-        // --- 📊 OPERACIÓN MATEMÁTICA EN LAS CASILLAS ---
         let pvDefRestantes = Math.max(0, pvDefInicial - dañoAplicadoDefensor);
         let pvAtqRestantes = Math.max(0, pvAtqInicial - dañoAplicadoAtacante);
 
-        if (pvDefRestantes <= 0) estadoFinalDefensor = "💀 INCONSCIENTE / MUERTO";
+        if (pvDefRestantes <= 0) {
+            estadoFinalDefensor = "💀 INCONSCIENTE / MUERTO";
+            cronicaNarrativa += " El golpe apaga definitivamente la luz de sus ojos; cae desplomado sobre la tierra fría.";
+        }
         if (pvAtqRestantes <= 0) estadoFinalAtacante = "💀 INCONSCIENTE (Pifia)";
 
-        // 🌟 REGLA DE ORO: ACTUALIZAR LOS INPUTS EN LA PANTALLA REAL 🌟
         document.getElementById('pv-atq').value = pvAtqRestantes;
         document.getElementById('pv-def').value = pvDefRestantes;
 
-        // Automatización de estados de MERP para el próximo turno
-        if (nuevoAturdidoDef) {
-            document.getElementById('mod-def-aturdido').checked = true;
+        // CÁCULO PORCENTAJES BARRAS DE VIDA (Asumiendo 100 de vida máxima visual de referencia)
+        let pctAtq = (pvAtqRestantes / 100) * 100;
+        let pctDef = (pvDefRestantes / 100) * 100;
+        
+        const barAtq = document.getElementById('bar-atq');
+        const barDef = document.getElementById('bar-def');
+
+        if(barAtq) {
+            barAtq.style.width = `${Math.max(0, Math.min(100, pctAtq))}%`;
+            if (pctAtq < 30) barAtq.style.background = "linear-gradient(90deg, #ff3333, #cc0000)";
+            else if (pctAtq < 60) barAtq.style.background = "linear-gradient(90deg, #ffcc00, #ff9900)";
+            else barAtq.style.background = "linear-gradient(90deg, #00ff66, #00cc44)";
         }
-        if (nuevoAturdidoAtq) {
-            document.getElementById('mod-atq-aturdido').checked = true;
+        if(barDef) {
+            barDef.style.width = `${Math.max(0, Math.min(100, pctDef))}%`;
+            if (pctDef < 30) barDef.style.background = "linear-gradient(90deg, #ff3333, #cc0000)";
+            else if (pctDef < 60) barDef.style.background = "linear-gradient(90deg, #ffcc00, #ff9900)";
+            else barDef.style.background = "linear-gradient(90deg, #00ff66, #00cc44)";
         }
-        // La sorpresa se consume tras el primer golpe
+
+        if (nuevoAturdidoDef) document.getElementById('mod-def-aturdido').checked = true;
+        if (nuevoAturdidoAtq) document.getElementById('mod-atq-aturdido').checked = true;
         document.getElementById('mod-def-sorprendido').checked = false;
 
-        // Cosmética final para la bitácora
         const nombresArmas = {
             espada_ancha: "Espada Ancha", espada_corta: "Espada Corta", daga: "Daga", cimitarra: "Cimitarra",
             maza: "Maza", martillo: "Martillo de Guerra", gran_hacha: "Gran Hacha", mandoble: "Mandoble",
@@ -284,8 +291,12 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         const desgloseDadosImpresion = logTiradas.map(n => n < 0 ? `(${n})` : n).join(' + ');
 
         resultBox.innerHTML = `
-            <h3 style="color:#ffcc00; border-bottom: 1px solid #8b7355; padding-bottom: 8px; margin-top: 0;">⚔️ Crónica de Combate Táctico ⚔️</h3>
+            <h3 style="color:#ffcc00; border-bottom: 1px solid #8b7355; padding-bottom: 8px; margin-top: 0; text-shadow: 1px 1px 2px #000;">📖 Registro del Tabardo del Cronista 📖</h3>
             
+            <div style="background-color: #1a1510; border-left: 4px solid #ffcc00; padding: 15px; border-radius: 4px; font-style: italic; font-size: 16px; color: #f0e6d2; line-height: 1.5; margin-bottom: 15px; text-align: left;">
+                "${cronicaNarrativa}"
+            </div>
+
             <table style="width:100%; border-collapse: collapse; margin-bottom: 15px; font-size:14px; background-color:#1a1a1a; border-radius:6px; overflow:hidden;">
                 <thead>
                     <tr style="background-color:#2a2a2a; color:#ffcc00; text-align:left;">
@@ -298,15 +309,15 @@ document.getElementById('roll-btn').addEventListener('click', function() {
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding:8px; border: 1px solid #333;"><strong>Atacante</strong></td>
-                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ccc;">${pvAtqInicial}</td>
+                        <td style="padding:8px; border: 1px solid #333;"><strong>Atacante (${nombresRazas[razaAtq]})</strong></td>
+                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#aaa;">${pvAtqInicial}</td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ff4d4d;">${dañoAplicadoAtacante > 0 ? '-' + dañoAplicadoAtacante : '0'}</td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#00ff66; font-weight:bold;">${pvAtqRestantes}</td>
-                        <td style="padding:8px; border: 1px solid #333; font-size:12px; color:#ddd;">${estadoFinalAtacante}</td>
+                        <td style="padding:8px; border: 1px solid #333; font-size:12px; color:#ccc;">${estadoFinalAtacante}</td>
                     </tr>
                     <tr>
-                        <td style="padding:8px; border: 1px solid #333;"><strong>Defensor</strong></td>
-                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ccc;">${pvDefInicial}</td>
+                        <td style="padding:8px; border: 1px solid #333;"><strong>Defensor (${nombresRazas[razaDef]})</strong></td>
+                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#aaa;">${pvDefInicial}</td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ff4d4d;">${dañoAplicadoDefensor > 0 ? '-' + dañoAplicadoDefensor : '0'}</td>
                         <td style="padding:8px; border: 1px solid #333; text-align:center; color:#00ff66; font-weight:bold;">${pvDefRestantes}</td>
                         <td style="padding:8px; border: 1px solid #333; font-size:12px; font-weight:bold; color:#ffcc00;">${estadoFinalDefensor}</td>
@@ -314,17 +325,15 @@ document.getElementById('roll-btn').addEventListener('click', function() {
                 </tbody>
             </table>
 
-            <p style="font-size: 14px; color: #aaa; margin: 4px 0; text-align:left;">
-                <strong>Secuencia de Dados:</strong> [${desgloseDadosImpresion}]${tipoDeTiradaTexto}
-            </p>
-            <p style="font-size: 14px; color: #aaa; margin: 4px 0; text-align:left;">
-                <strong>Cálculo:</strong> ${totalDados} (Dados) + ${boFinal} (BO) - ${bdFinal} (BD) = <strong>${resultadoTabla}</strong> en Tabla.
-            </p>
-            
-            <hr style="border-color: #444; margin: 15px 0;">
-            ${respuestaCombate}
+            <div style="font-size: 12px; color: #888; text-align: left; line-height: 1.4; background: #111; padding: 10px; border-radius: 4px;">
+                <strong>Mesa de Dados:</strong> [${desgloseDadosImpresion}]${tipoDeTiradaTexto} <br>
+                <strong>Resolución Táctica:</strong> Dados (${totalDados}) + BO (${boFinal}) - BD (${bdFinal}) = <strong>${resultadoTabla}</strong> en tabla con ${nombresArmas[armaSeleccionada]}.
+            </div>
         `;
+        
         resultBox.style.display = 'block';
+        resultBox.offsetHeight; 
+        resultBox.classList.add('show');
         
     }, 1000);
 });

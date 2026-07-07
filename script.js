@@ -1,11 +1,14 @@
 document.getElementById('roll-btn').addEventListener('click', function() {
+    // Captura inicial de datos
     const razaAtq = document.getElementById('raza-atq').value;
     const armaSeleccionada = document.getElementById('arma').value;
     let boBase = parseInt(document.getElementById('bo').value) || 0;
+    let pvAtqInicial = parseInt(document.getElementById('pv-atq').value) || 1;
     
     const razaDef = document.getElementById('raza-def').value;
     const ta = parseInt(document.getElementById('ta').value) || 1;
     let bdBase = parseInt(document.getElementById('bd').value) || 0;
+    let pvDefInicial = parseInt(document.getElementById('pv-def').value) || 1;
     
     const llevaEscudo = document.getElementById('def-escudo').checked;
     let puntosParar = parseInt(document.getElementById('def-parar').value) || 0;
@@ -60,195 +63,204 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         if (["gran_hacha", "mandoble"].includes(armaSeleccionada)) tipoCategoriaTabla = 'dos_manos';
         if (["arco_largo", "arco_corto", "honda"].includes(armaSeleccionada)) tipoCategoriaTabla = 'proyectil';
 
-        // --- CÁLCULO DE MODIFICADORES ---
-        let modBO = 0;
-        let desgloseTextoBO = [];
-        let modBD = 0;
-        let desgloseTextoBD = [];
+        // Modificadores de combate
+        let modBO = 0; let desgloseTextoBO = [];
+        let modBD = 0; let desgloseTextoBD = [];
         let mitigacionDañoracial = 0;
 
-        // Modificadores Raciales del Atacante
-        if (razaAtq === 'elfo' && ['espada_ancha', 'espada_corta', 'arco_largo', 'arco_corto'].includes(armaSeleccionada)) {
-            modBO += 10; desgloseTextoBO.push("+10 Racial Alto Elfo");
-        } else if (razaAtq === 'elfo_silvano') {
-            if (['arco_largo', 'arco_corto'].includes(armaSeleccionada)) { modBO += 15; desgloseTextoBO.push("+15 Puntería Silvana"); }
-        } else if (razaAtq === 'rohirrim') {
-            if (['espada_ancha', 'espada_corta'].includes(armaSeleccionada)) { modBO += 10; desgloseTextoBO.push("+10 Acero de Rohan"); }
-        } else if (razaAtq === 'enano' && armaSeleccionada === 'gran_hacha') {
-            modBO += 10; desgloseTextoBO.push("+10 Orgullo Enano");
-        } else if (razaAtq === 'orco' && ['espada_ancha', 'cimitarra', 'maza', 'gran_hacha'].includes(armaSeleccionada)) {
-            modBO += 5; desgloseTextoBO.push("+5 Furia Uruk-hai");
-        } else if (razaAtq === 'orco' && tipoCategoriaTabla === 'proyectil') {
-            modBO -= 10; desgloseTextoBO.push("-10 Luz Cegadora");
-        } else if (razaAtq === 'orco_comun') {
-            modBO -= 5; desgloseTextoBO.push("-5 Debilidad Snaga");
-            if (modFlanco || modEspalda) { modBO += 10; desgloseTextoBO.push("+10 Emboscada Rastrera Orco"); }
-        } else if (razaAtq === 'trol') {
-            if (tipoCategoriaTabla === 'dos_manos') { modBO += 20; desgloseTextoBO.push("+20 Fuerza Bruta de Trol"); }
-            if (tipoCategoriaTabla === 'proyectil') { modBO -= 50; desgloseTextoBO.push("-50 Torpeza de Trol con Proyectiles"); }
-        } else if (razaAtq === 'hobbit' && armaSeleccionada === 'honda') {
-            modBO += 15; desgloseTextoBO.push("+15 Puntería de la Comarca");
-        } else if (razaAtq === 'humano') {
-            modBO += 5; desgloseTextoBO.push("+5 Linaje Dúnadan");
-        }
+        // Raciales Atacante
+        if (razaAtq === 'elfo' && ['espada_ancha', 'espada_corta', 'arco_largo', 'arco_corto'].includes(armaSeleccionada)) { modBO += 10; desgloseTextoBO.push("+10 Racial Alto Elfo"); }
+        else if (razaAtq === 'elfo_silvano' && ['arco_largo', 'arco_corto'].includes(armaSeleccionada)) { modBO += 15; desgloseTextoBO.push("+15 Puntería Silvana"); }
+        else if (razaAtq === 'rohirrim' && ['espada_ancha', 'espada_corta'].includes(armaSeleccionada)) { modBO += 10; desgloseTextoBO.push("+10 Acero de Rohan"); }
+        else if (razaAtq === 'enano' && armaSeleccionada === 'gran_hacha') { modBO += 10; desgloseTextoBO.push("+10 Orgullo Enano"); }
+        else if (razaAtq === 'orco' && ['espada_ancha', 'cimitarra', 'maza', 'gran_hacha'].includes(armaSeleccionada)) { modBO += 5; desgloseTextoBO.push("+5 Furia Uruk-hai"); }
+        else if (razaAtq === 'orco_comun') { modBO -= 5; desgloseTextoBO.push("-5 Debilidad Snaga"); if (modFlanco || modEspalda) { modBO += 10; desgloseTextoBO.push("+10 Emboscada Rastrera"); } }
+        else if (razaAtq === 'trol') { if (tipoCategoriaTabla === 'dos_manos') { modBO += 20; desgloseTextoBO.push("+20 Fuerza de Trol"); } if (tipoCategoriaTabla === 'proyectil') { modBO -= 50; desgloseTextoBO.push("-50 Torpeza Proyectil"); } }
+        else if (razaAtq === 'hobbit' && armaSeleccionada === 'honda') { modBO += 15; desgloseTextoBO.push("+15 Puntería Mediano"); }
 
-        if (razaAtq === 'hobbit' && tipoCategoriaTabla === 'dos_manos') {
-            modBO -= 30; desgloseTextoBO.push("<span style='color:#ff4d4d;'>-30 Restricción Física Mediano</span>");
-        }
+        if (razaAtq === 'hobbit' && tipoCategoriaTabla === 'dos_manos') { modBO -= 30; desgloseTextoBO.push("-30 Restricción Física"); }
 
-        // Modificadores de situación Atacante
         if (modFlanco) { modBO += 15; desgloseTextoBO.push("+15 Flanco"); }
         if (modEspalda) { modBO += 35; desgloseTextoBO.push("+35 Espalda"); }
         if (modAtqAturdido) { modBO -= 20; desgloseTextoBO.push("-20 Aturdido"); }
         if (modAtqHerido) { modBO -= 10; desgloseTextoBO.push("-10 Herido"); }
 
-        // Modificadores Raciales del Defensor
+        // Raciales Defensor
         if (razaDef === 'hobbit') { modBD += 15; desgloseTextoBD.push("+15 Blanco Pequeño"); }
         else if (razaDef === 'elfo') { modBD += 5; desgloseTextoBD.push("+5 Reflejos Noldor"); }
-        else if (razaDef === 'elfo_silvano') { modBD += 10; desgloseTextoBD.push("+10 Agilidad de los Bosques"); }
+        else if (razaDef === 'elfo_silvano') { modBD += 10; desgloseTextoBD.push("+10 Agilidad Silvana"); }
         else if (razaDef === 'enano') { mitigacionDañoracial = 2; }
-        else if (razaDef === 'trol') { 
-            modBD -= 15; desgloseTextoBD.push("-15 Blanco Gigante (Fácil de impactar)"); 
-            mitigacionDañoracial = 8; // Piel de roca
-        }
+        else if (razaDef === 'trol') { modBD -= 15; desgloseTextoBD.push("-15 Blanco Gigante"); mitigacionDañoracial = 8; }
 
-        // Escudo
         if (llevaEscudo) {
-            if (modEspalda) { desgloseTextoBD.push("+0 Escudo (Espalda indefensa)"); }
-            else if (modDefAturdido) { desgloseTextoBD.push("+0 Escudo (Incapaz por Aturdimiento)"); }
-            else { modBD += 20; desgloseTextoBD.push("+20 Escudo Activo"); }
+            if (modEspalda || modDefAturdido) desgloseTextoBD.push("+0 Escudo (Anulado)");
+            else { modBD += 20; desgloseTextoBD.push("+20 Escudo"); }
         }
 
-        // Parada
         if (puntosParar > 0) {
-            if (modDefAturdido || modDefSorprendido || modEspalda) {
-                desgloseTextoBD.push("+0 Parada (Imposible ejecutar)");
-            } else {
-                modBD += puntosParar; desgloseTextoBD.push(`+${puntosParar} Puntos de Parada`);
-            }
+            if (modDefAturdido || modDefSorprendido || modEspalda) desgloseTextoBD.push("+0 Parada (Imposible)");
+            else { modBD += puntosParar; desgloseTextoBD.push(`+${puntosParar} Parada`); }
         }
 
-        if (modDefAturdido) { modBD -= bdBase; desgloseTextoBD.push(`-${bdBase} BD Base perdida por Aturdimiento`); }
+        if (modDefAturdido) { modBD -= bdBase; desgloseTextoBD.push(`-${bdBase} BD Aturdimiento`); }
         if (modDefSorprendido) { modBD -= 20; desgloseTextoBD.push("-20 Sorprendido"); }
 
         let boFinal = boBase + modBO;
         let bdFinal = bdBase + modBD;
         let resultadoTabla = totalDados + boFinal - bdFinal;
 
-        // --- 💥 TABLA DE PIFIAS ---
+        // Variables de impacto de salud finales
+        let dañoAplicadoDefensor = 0;
+        let dañoAplicadoAtacante = 0;
+        let estadoFinalAtacante = "Saludable";
+        let estadoFinalDefensor = "Saludable";
         let respuestaCombate = "";
+
         let esPifia = logTiradas[0] <= 4;
 
         if (esPifia) {
             let textoPifia = "";
             if (tipoCategoriaTabla === 'filo') {
-                textoPifia = "💥 <strong>PIFIA DE FILO:</strong> El arma impacta en falso contra el suelo. Te cortas a ti mismo sufriendo <strong>5 PV directos</strong>, quedas <strong>Aturdido 1 asalto</strong> y el filo queda mellado (-5 al BO).";
+                dañoAplicadoAtacante = 5; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO (1 asalto)";
+                textoPifia = "💥 <strong>PIFIA DE FILO:</strong> Te cortas a ti mismo sufriendo <strong>5 PV directos</strong>, quedas <strong>Aturdido 1 asalto</strong> y el filo queda mellado (-5 al BO).";
             } else if (tipoCategoriaTabla === 'contundente') {
-                textoPifia = "💥 <strong>PIFIA CONTUNDENTE:</strong> Calculas mal el impacto y la inercia te deforma la muñeca. Sufres un dolor agudo y arrastras un **-15 al BO durante los siguientes 3 asaltos**.";
+                estadoFinalAtacante = "⚠️ MUÑECA DISLOCADA (-15 BO x3 asaltos)";
+                textoPifia = "💥 <strong>PIFIA CONTUNDENTE:</strong> La inercia te deforma la muñeca. Arrastras un **-15 al BO durante los siguientes 3 asaltos**.";
             } else if (tipoCategoriaTabla === 'dos_manos') {
-                textoPifia = "💥 <strong>PIFIA A DOS MANOS:</strong> ¡El peso te vence! Fallas el golpe y te vas al suelo con estrépito. Quedas en **posición tendida (-30 BD)** y **Aturdido durante 2 asaltos**.";
+                estadoFinalAtacante = "⚠️ DERRIBADO Y ATURDIDO (2 asaltos)";
+                textoPifia = "💥 <strong>PIFIA A DOS MANOS:</strong> ¡El peso te vence! Caes al suelo en **posición tendida (-30 BD)** y quedas **Aturdido durante 2 asaltos**.";
             } else if (tipoCategoriaTabla === 'proyectil') {
-                textoPifia = "💥 <strong>PIFIA DE PROYECTIL:</strong> ¡La cuerda del arco se rompe con un violento restallido! El latigazo te golpea la cara: sufres <strong>3 PV</strong> y quedas **Aturdido 2 asaltos**.";
+                dañoAplicadoAtacante = 3; estadoFinalAtacante = "⚠️ HERIDO Y ATURDIDO (2 asaltos)";
+                textoPifia = "💥 <strong>PIFIA DE PROYECTIL:</strong> ¡La cuerda se rompe! El latigazo te causa <strong>3 PV</strong> y quedas **Aturdido 2 asaltos**.";
             }
-
+            estadoFinalDefensor = "Sin Novedad (No fue atacado)";
             respuestaCombate = `
-                <div style="color: #ff4d4d; font-size: 22px; font-weight: bold; margin-bottom: 10px;">❌ ¡FALLO CRÍTICO / PIFIA! ❌</div>
+                <div style="color: #ff4d4d; font-size: 20px; font-weight: bold; margin-bottom: 10px;">❌ ¡FALLO CRÍTICO / PIFIA! ❌</div>
                 <div style="background-color: #2b1111; padding: 14px; border-radius: 6px; border-left: 5px solid #ff4d4d; text-align: left; font-size: 15px; color:#ffb3b3;">
                     ${textoPifia}
                 </div>
             `;
         } else {
-            // --- TABLAS DE DAÑO ---
-            let pvDaño = 0;
+            // --- TABLAS DE DAÑO NORMAL ---
+            let pvDañoBase = 0;
             let rangoCritico = "Ninguno";
             let descCritico = "";
+            let pvCriticoExtra = 0;
+            let efectosEspecialesCritico = [];
 
             if (tipoCategoriaTabla === 'filo') {
-                if (resultadoTabla <= 40) pvDaño = 0;
-                else if (resultadoTabla <= 65) pvDaño = (ta <= 4) ? 5 : (ta <= 8) ? 3 : (ta <= 12) ? 1 : 0;
-                else if (resultadoTabla <= 85) pvDaño = (ta <= 4) ? 10 : (ta <= 8) ? 7 : (ta <= 12) ? 4 : 0;
-                else if (resultadoTabla <= 100) pvDaño = (ta <= 4) ? 15 : (ta <= 8) ? 12 : (ta <= 12) ? 9 : 3;
-                else if (resultadoTabla <= 115) { pvDaño = (ta <= 4) ? 18 : (ta <= 8) ? 15 : 11; rangoCritico = "A"; }
-                else if (resultadoTabla <= 130) { pvDaño = (ta <= 4) ? 22 : (ta <= 12) ? 16 : 8; rangoCritico = (ta <= 12) ? "B" : "A"; }
-                else { pvDaño = (ta <= 4) ? 30 : 20; rangoCritico = (ta <= 4) ? "D" : (ta <= 12) ? "C" : "B"; }
+                if (resultadoTabla <= 40) pvDañoBase = 0;
+                else if (resultadoTabla <= 65) pvDañoBase = (ta <= 4) ? 5 : (ta <= 8) ? 3 : (ta <= 12) ? 1 : 0;
+                else if (resultadoTabla <= 85) pvDañoBase = (ta <= 4) ? 10 : (ta <= 8) ? 7 : (ta <= 12) ? 4 : 0;
+                else if (resultadoTabla <= 100) pvDañoBase = (ta <= 4) ? 15 : (ta <= 8) ? 12 : (ta <= 12) ? 9 : 3;
+                else if (resultadoTabla <= 115) { pvDañoBase = (ta <= 4) ? 18 : (ta <= 8) ? 15 : 11; rangoCritico = "A"; }
+                else if (resultadoTabla <= 130) { pvDañoBase = (ta <= 4) ? 22 : (ta <= 12) ? 16 : 8; rangoCritico = (ta <= 12) ? "B" : "A"; }
+                else { pvDañoBase = (ta <= 4) ? 30 : 20; rangoCritico = (ta <= 4) ? "D" : (ta <= 12) ? "C" : "B"; }
             }
             else if (tipoCategoriaTabla === 'contundente') {
-                if (resultadoTabla <= 40) pvDaño = 0;
-                else if (resultadoTabla <= 65) pvDaño = (ta <= 4) ? 4 : (ta >= 13) ? 5 : 2;
-                else if (resultadoTabla <= 85) pvDaño = (ta <= 4) ? 9 : (ta >= 13) ? 10 : 6;
-                else if (resultadoTabla <= 100) pvDaño = (ta <= 4) ? 14 : (ta >= 13) ? 15 : 10;
-                else if (resultadoTabla <= 115) { pvDaño = (ta <= 4) ? 19 : 16; rangoCritico = "A"; }
-                else if (resultadoTabla <= 130) { pvDaño = 22; rangoCritico = (ta >= 13) ? "B" : "A"; }
-                else { pvDaño = 28; rangoCritico = (ta >= 13) ? "D" : "C"; }
+                if (resultadoTabla <= 40) pvDañoBase = 0;
+                else if (resultadoTabla <= 65) pvDañoBase = (ta <= 4) ? 4 : (ta >= 13) ? 5 : 2;
+                else if (resultadoTabla <= 85) pvDañoBase = (ta <= 4) ? 9 : (ta >= 13) ? 10 : 6;
+                else if (resultadoTabla <= 100) pvDañoBase = (ta <= 4) ? 14 : (ta >= 13) ? 15 : 10;
+                else if (resultadoTabla <= 115) { pvDañoBase = (ta <= 4) ? 19 : 16; rangoCritico = "A"; }
+                else if (resultadoTabla <= 130) { pvDañoBase = 22; rangoCritico = (ta >= 13) ? "B" : "A"; }
+                else { pvDañoBase = 28; rangoCritico = (ta >= 13) ? "D" : "C"; }
             }
             else if (tipoCategoriaTabla === 'dos_manos') {
-                if (resultadoTabla <= 35) pvDaño = 0;
-                else if (resultadoTabla <= 65) pvDaño = (ta <= 4) ? 8 : (ta <= 12) ? 6 : 4;
-                else if (resultadoTabla <= 85) pvDaño = (ta <= 4) ? 15 : (ta <= 12) ? 12 : 9;
-                else if (resultadoTabla <= 100) { pvDaño = (ta <= 4) ? 22 : 16; rangoCritico = "A"; }
-                else if (resultadoTabla <= 115) { pvDaño = 26; rangoCritico = "B"; }
-                else if (resultadoTabla <= 130) { pvDaño = 32; rangoCritico = "C"; }
-                else { pvDaño = 42; rangoCritico = (ta <= 4) ? "E" : "D"; }
+                if (resultadoTabla <= 35) pvDañoBase = 0;
+                else if (resultadoTabla <= 65) pvDañoBase = (ta <= 4) ? 8 : (ta <= 12) ? 6 : 4;
+                else if (resultadoTabla <= 85) pvDañoBase = (ta <= 4) ? 15 : (ta <= 12) ? 12 : 9;
+                else if (resultadoTabla <= 100) { pvDañoBase = (ta <= 4) ? 22 : 16; rangoCritico = "A"; }
+                else if (resultadoTabla <= 115) { pvDañoBase = 26; rangoCritico = "B"; }
+                else if (resultadoTabla <= 130) { pvDañoBase = 32; rangoCritico = "C"; }
+                else { pvDañoBase = 42; rangoCritico = (ta <= 4) ? "E" : "D"; }
             }
             else if (tipoCategoriaTabla === 'proyectil') {
-                if (resultadoTabla <= 45) pvDaño = 0;
-                else if (resultadoTabla <= 65) pvDaño = (ta <= 4) ? 8 : (ta <= 12) ? 3 : 0;
-                else if (resultadoTabla <= 85) pvDaño = (ta <= 4) ? 14 : (ta <= 12) ? 7 : 1;
-                else if (resultadoTabla <= 100) pvDaño = (ta <= 4) ? 20 : (ta <= 12) ? 11 : 4;
-                else if (resultadoTabla <= 115) { pvDaño = (ta <= 4) ? 25 : 15; rangoCritico = "A"; }
-                else if (resultadoTabla <= 130) { pvDaño = 29; rangoCritico = (ta <= 4) ? "C" : "B"; }
-                else { pvDaño = 36; rangoCritico = (ta <= 4) ? "E" : "C"; }
+                if (resultadoTabla <= 45) pvDañoBase = 0;
+                else if (resultadoTabla <= 65) pvDañoBase = (ta <= 4) ? 8 : (ta <= 12) ? 3 : 0;
+                else if (resultadoTabla <= 85) pvDañoBase = (ta <= 4) ? 14 : (ta <= 12) ? 7 : 1;
+                else if (resultadoTabla <= 100) pvDañoBase = (ta <= 4) ? 20 : (ta <= 12) ? 11 : 4;
+                else if (resultadoTabla <= 115) { pvDañoBase = (ta <= 4) ? 25 : 15; rangoCritico = "A"; }
+                else if (resultadoTabla <= 130) { pvDañoBase = 29; rangoCritico = (ta <= 4) ? "C" : "B"; }
+                else { pvDañoBase = 36; rangoCritico = (ta <= 4) ? "E" : "C"; }
             }
 
-            // Mitigación por robustez de raza (Enano o Trol)
-            if (mitigacionDañoracial > 0 && pvDaño > 0) {
-                pvDaño = Math.max(1, pvDaño - mitigacionDañoracial);
-                descCritico += `<br><small style="color:#4da6ff;">🛡️ Robustez Física: Absorbe ${mitigacionDañoracial} PV del golpe debido a su naturaleza densa o coriácea.</small>`;
+            // Aplicar absorción antes de sumar críticos
+            if (mitigacionDañoracial > 0 && pvDañoBase > 0) {
+                pvDañoBase = Math.max(1, pvDañoBase - mitigacionDañoracial);
+                descCritico += `<br><small style="color:#4da6ff;">🛡️ Robustez: Absorbe ${mitigacionDañoracial} PV del golpe.</small>`;
             }
 
+            // Desglose matemático y médico del crítico obtenido
             if (rangoCritico !== "Ninguno") {
                 if (tipoCategoriaTabla === 'filo' || tipoCategoriaTabla === 'dos_manos') {
-                    const criticosCorte = {
-                        "A": "⚔️ <strong>Crítico (Rango A):</strong> Tajo superficial. +3 PV extra y -5 a la acción por dolor.",
-                        "B": "🩸 <strong>Crítico (Rango B):</strong> Herida sangrante. +5 PV extra y el rival sangra 1 PV/asalto.",
-                        "C": "🦴 <strong>Crítico (Rango C):</strong> El filo quiebra una costilla. +8 PV extra y el rival queda **Aturdido 1 asalto**.",
-                        "D": "💀 <strong>Crítico (Rango D):</strong> Golpe severo. +12 PV extra, enemigo **Aturdido 2 asaltos** y sangra 2 PV/asalto.",
-                        "E": "🦅 <strong>Crítico (Rango E):</strong> ¡Corte arterial! +20 PV extra, derribado y **Aturdido durante 3 asaltos**."
+                    const mapas = {
+                        "A": { pv: 3, txt: "⚔️ <strong>Rango A:</strong> Tajo superficial. +3 PV y -5 a la acción.", est: "Aturdido (1 asalto)" },
+                        "B": { pv: 5, txt: "🩸 <strong>Rango B:</strong> Herida sangrante. +5 PV y sangra 1 PV/asalto.", est: "Sangrando (1 PV/asalto)" },
+                        "C": { pv: 8, txt: "🦴 <strong>Rango C:</strong> Rompe costilla. +8 PV y queda **Aturdido 1 asalto**.", est: "Aturdido (1 asalto)" },
+                        "D": { pv: 12, txt: "💀 <strong>Rango D:</strong> Golpe severo. +12 PV, **Aturdido 2 asaltos** y sangra 2 PV/as.", est: "Aturdido (2 asaltos) y Sangrando" },
+                        "E": { pv: 20, txt: "🦅 <strong>Rango E:</strong> ¡Corte arterial! +20 PV, derribado y **Aturdido 3 asaltos**.", est: "Mutilado y Aturdido (3 asaltos)" }
                     };
-                    descCritico = criticosCorte[rangoCritico] + descCritico;
+                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico; efectosEspecialesCritico.push(mapas[rangoCritico].est);
                 } else if (tipoCategoriaTabla === 'contundente') {
-                    const criticosPorra = {
-                        "A": "💥 <strong>Crítico (Rango A):</strong> Contusión severa. +2 PV extra y -5 de penalización.",
-                        "B": "🦴 <strong>Crítico (Rango B):</strong> Impacto sordo. +5 PV extra y el defensor queda **Aturdido 1 asalto**.",
-                        "C": "🧠 <strong>Crítico (Rango C):</strong> Traumatismo craneal. +8 PV extra y enemigo **Aturdido 2 asaltos**.",
-                        "D": "🦵 <strong>Crítico (Rango D):</strong> Rompe hueso de soporte. +12 PV extra, cae de rodillas y **Aturdido 3 asaltos**.",
-                        "E": "💀 <strong>Crítico (Rango E):</strong> Fractura múltiple aplastante. +20 PV extra y el rival queda **Incapacitado 4 asaltos**."
+                    const mapas = {
+                        "A": { pv: 2, txt: "💥 <strong>Rango A:</strong> Contusión. +2 PV extra y -5 de penalización.", est: "Magullado" },
+                        "B": { pv: 5, txt: "🦴 <strong>Rango B:</strong> Impacto sordo. +5 PV y queda **Aturdido 1 asalto**.", est: "Aturdido (1 asalto)" },
+                        "C": { pv: 8, txt: "🧠 <strong>Rango C:</strong> Traumatismo craneal. +8 PV y **Aturdido 2 asaltos**.", est: "Aturdido (2 asaltos)" },
+                        "D": { pv: 12, txt: "🦵 <strong>Rango D:</strong> Rompe hueso. +12 PV, cae de rodillas y **Aturdido 3 asaltos**.", est: "Cojera y Aturdido (3 asaltos)" },
+                        "E": { pv: 20, txt: "💀 <strong>Rango E:</strong> Fractura aplastante. +20 PV y queda **Incapacitado 4 asaltos**.", est: "🚨 INCAPACITADO (4 asaltos)" }
                     };
-                    descCritico = criticosPorra[rangoCritico] + descCritico;
+                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico; efectosEspecialesCritico.push(mapas[rangoCritico].est);
                 } else if (tipoCategoriaTabla === 'proyectil') {
-                    const criticosFlechazo = {
-                        "A": "🎯 <strong>Crítico (Rango A):</strong> Flecha alojada. +3 PV extra y -5 general.",
-                        "B": "🩸 <strong>Crítico (Rango B):</strong> Traspasa tejido blando. +5 PV extra y hemorragia de 1 PV/asalto.",
-                        "C": "🏹 <strong>Crítico (Rango C):</strong> Perforación dolorosa. +8 PV extra, sangra 2 PV/asalto y queda **Aturdido 1 asalto**.",
-                        "D": "👁️ <strong>Crítico (Rango D):</strong> Impacto orgánico grave. +12 PV extra y enemigo **Aturdido 2 asaltos**.",
-                        "E": "💀 <strong>Crítico (Rango E):</strong> Atraviesa zona vital. +22 PV extra, cae inconsciente al suelo y **Aturdido 4 asaltos**."
+                    const mapas = {
+                        "A": { pv: 3, txt: "🎯 <strong>Rango A:</strong> Flecha alojada. +3 PV extra.", est: "Herida de Proyectil" },
+                        "B": { pv: 5, txt: "🩸 <strong>Rango B:</strong> Traspasa tejido blando. +5 PV y hemorragia de 1 PV/as.", est: "Sangrando (1 PV/asalto)" },
+                        "C": { pv: 8, txt: "🏹 <strong>Rango C:</strong> Perforación dolorosa. +8 PV, sangra 2 PV/as y **Aturdido 1 asalto**.", est: "Aturdido (1 asalto) y Sangrando" },
+                        "D": { pv: 12, txt: "👁️ <strong>Rango D:</strong> Impacto orgánico grave. +12 PV y **Aturdido 2 asaltos**.", est: "Aturdido (2 asaltos)" },
+                        "E": { pv: 22, txt: "💀 <strong>Rango E:</strong> Atraviesa zona vital. +22 PV y el rival cae **Inconsciente**.", est: "💀 INCONSCIENTE" }
                     };
-                    descCritico = criticosFlechazo[rangoCritico] + descCritico;
+                    pvCriticoExtra = mapas[rangoCritico].pv; descCritico = mapas[rangoCritico].txt + descCritico; efectosEspecialesCritico.push(mapas[rangoCritico].est);
                 }
             } else {
-                descCritico = "⚔️ Golpe directo sin efectos críticos de consideración.";
+                descCritico = "⚔️ Golpe directo sin efectos críticos graves.";
+                if (pvDañoBase > 0) efectosEspecialesCritico.push("Herido Leve");
+            }
+
+            dañoAplicadoDefensor = pvDañoBase + pvCriticoExtra;
+            estadoFinalAtacante = "Saludable (Listo para el siguiente turno)";
+            
+            // Construir diagnóstico clínico del Defensor
+            if (dañoAplicadoDefensor > 0) {
+                estadoFinalDefensor = efectosEspecialesCritico.join(' y ');
+            } else {
+                estadoFinalDefensor = "Ileso (El golpe erró o rebotó en la armadura)";
             }
 
             respuestaCombate = `
-                <div style="font-size: 28px; color: #ffcc00; font-weight: bold; margin-bottom: 15px;">
-                    💥 Impacto: ${pvDaño} PV 💥
+                <div style="font-size: 26px; color: #ffcc00; font-weight: bold; margin-bottom: 12px;">
+                    💥 Daño Total: ${dañoAplicadoDefensor} PV 💥
                 </div>
                 <div style="background-color: #252525; padding: 12px; border-radius: 6px; border-left: 4px solid #b71c1c; text-align: left; font-size: 15px;">
                     ${descCritico}
                 </div>
             `;
         }
+
+        // --- CÁLCULO DE RECUENTO DE SALUD POST-COMBATE ---
+        let pvDefRestantes = pvDefInicial - dañoAplicadoDefensor;
+        let pvAtqRestantes = pvAtqInicial - dañoAplicadoAtacante;
+
+        // Comprobación de inconsciencia oficial (PV <= 0)
+        if (pvDefRestantes <= 0) {
+            pvDefRestantes = 0;
+            estadoFinalDefensor = "💀 INCONSCIENTE / MORIBUNDO (Fuera de combate)";
+        }
+        if (pvAtqRestantes <= 0) {
+            pvAtqRestantes = 0;
+            estadoFinalAtacante = "💀 INCONSCIENTE POR AUTOMEDILACIÓN / PIFIA";
+        }
         
+        // Cosmética
         const nombresArmas = {
             espada_ancha: "Espada Ancha", espada_corta: "Espada Corta", daga: "Daga", cimitarra: "Cimitarra",
             maza: "Maza", martillo: "Martillo de Guerra", gran_hacha: "Gran Hacha", mandoble: "Mandoble",
@@ -260,24 +272,53 @@ document.getElementById('roll-btn').addEventListener('click', function() {
         };
         const desgloseDadosImpresion = logTiradas.map(n => n < 0 ? `(${n})` : n).join(' + ');
 
+        // RENDER DE PANTALLA CON TABLA MÉDICA
         resultBox.innerHTML = `
             <h3 style="color:#ffcc00; border-bottom: 1px solid #8b7355; padding-bottom: 8px; margin-top: 0;">⚔️ Crónica de Combate Táctico ⚔️</h3>
             
-            <p style="font-size: 16px; margin: 6px 0;"><strong>Ataque:</strong> ${nombresRazas[razaAtq]} con <strong>${nombresArmas[armaSeleccionada]}</strong></p>
-            <p style="font-size: 16px; margin: 6px 0;"><strong>Defensa:</strong> ${nombresRazas[razaDef]} (TA-${ta})</p>
-            
+            <!-- TABLA DE ESTADO MÉDICO POST-COMBATE -->
+            <table style="width:100%; border-collapse: collapse; margin-bottom: 15px; font-size:14px; background-color:#1a1a1a; border-radius:6px; overflow:hidden;">
+                <thead>
+                    <tr style="background-color:#2a2a2a; color:#ffcc00; text-align:left;">
+                        <th style="padding:8px; border: 1px solid #333;">Combatiente</th>
+                        <th style="padding:8px; border: 1px solid #333; text-align:center;">PV Antes</th>
+                        <th style="padding:8px; border: 1px solid #333; text-align:center;">Daño</th>
+                        <th style="padding:8px; border: 1px solid #333; text-align:center;">PV Después</th>
+                        <th style="padding:8px; border: 1px solid #333;">Estado Final</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:8px; border: 1px solid #333;"><strong>Atacante (${nombresRazas[razaAtq]})</strong></td>
+                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ccc;">${pvAtqInicial}</td>
+                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ff4d4d;">${dañoAplicadoAtacante > 0 ? '-' + dañoAplicadoAtacante : '0'}</td>
+                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#00ff66; font-weight:bold;">${pvAtqRestantes}</td>
+                        <td style="padding:8px; border: 1px solid #333; font-size:12px; color:#ddd;">${estadoFinalAtacante}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px; border: 1px solid #333;"><strong>Defensor (${nombresRazas[razaDef]})</strong></td>
+                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ccc;">${pvDefInicial}</td>
+                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#ff4d4d;">${dañoAplicadoDefensor > 0 ? '-' + dañoAplicadoDefensor : '0'}</td>
+                        <td style="padding:8px; border: 1px solid #333; text-align:center; color:#00ff66; font-weight:bold;">${pvDefRestantes}</td>
+                        <td style="padding:8px; border: 1px solid #333; font-size:12px; font-weight:bold; color:#ffcc00;">${estadoFinalDefensor}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="font-size: 15px; margin: 4px 0; text-align:left;"><strong>Asalto ejecutado:</strong> ${nombresRazas[razaAtq]} usando <strong>${nombresArmas[armaSeleccionada]}</strong> contra ${nombresRazas[razaDef]} (TA-${ta}).</p>
+
             <div style="background-color:#111; padding: 8px; font-size:13px; text-align:left; border-radius:4px; margin: 10px 0; border: 1px solid #333; line-height:1.4;">
                 <span style="color:#ff4d4d;"><strong>Modificadores de Ataque (BO):</strong></span> ${desgloseTextoBO.length > 0 ? desgloseTextoBO.join(' | ') : 'Ninguno (Base)'}<br>
                 <span style="color:#3399ff;"><strong>Modificadores de Defensa (BD):</strong></span> ${desgloseTextoBD.length > 0 ? desgloseTextoBD.join(' | ') : 'Ninguno (Base)'}
             </div>
 
-            <p style="font-size: 14px; color: #aaa; margin: 4px 0;">
-                <strong>Secuencia de Dados:</strong> [${desgloseDadosImpresion}]${tipoDeTiradaTexto}
+            <p style="font-size: 13px; color: #aaa; margin: 4px 0; text-align:left;">
+                <strong>Secuencia de Dados de la Mesa:</strong> [${desgloseDadosImpresion}]${tipoDeTiradaTexto}
             </p>
-            <p style="font-size: 14px; color: #aaa; margin: 4px 0;">
-                <strong>Fórmula final:</strong> ${totalDados} (Dados) + ${boFinal} (BO Final) - ${bdFinal} (BD Final)
+            <p style="font-size: 13px; color: #aaa; margin: 4px 0; text-align:left;">
+                <strong>Fórmula final:</strong> ${totalDados} (Dados) + ${boFinal} (BO Final) - ${bdFinal} (BD Final) = <strong>${resultadoTabla}</strong> en tabla.
             </p>
-            <p style="font-size: 20px; margin: 10px 0; color:#ffcc00;">Total final en Tabla: <strong>${resultadoTabla}</strong></p>
+            
             <hr style="border-color: #444; margin: 15px 0;">
             ${respuestaCombate}
         `;

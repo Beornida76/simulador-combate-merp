@@ -1,6 +1,3 @@
-JavaScript
-
-
 document.getElementById('roll-btn').addEventListener('click', function() {
     // 1. Obtener los valores de los cuadros
     const bo = parseInt(document.getElementById('bo').value) || 0;
